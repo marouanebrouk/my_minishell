@@ -3,6 +3,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+
 
 #define MAX_INPUT 1024
 #define MAX_ARGS 100
@@ -11,7 +14,7 @@
 int ft_strcmp(char *s1, char *s2)
 {
     int i = 0;
-    while (s1[i] && s2[i] && s1[i]==s1[i])
+    while (s1[i] && s2[i] && s1[i] == s2[i])
         i++;
     return (s1[i]-s2[i]);
 }
@@ -24,11 +27,7 @@ int	is_builtin(char *cmd)
 
 void	handle_builtin(char **args)
 {
-	if (!ft_strcmp(args[0],"ls"))
-	{
-		if ()
-	}
-	else if (!ft_strcmp(args[0], "cd"))
+	if (!ft_strcmp(args[0], "cd"))
 	{
 		if (!args[1])
 			write(2, "cd: missing argument\n",21);
@@ -56,7 +55,7 @@ void	handle_builtin(char **args)
 		printf("\n");
 	}
 	else if (!ft_strcmp(args[0], "exit"))
-		exit(0);
+		exit(1);
 }
 
 void	run_command(char *input)
@@ -96,16 +95,34 @@ void	run_command(char *input)
 	}
 }
 
+// int	main(void)
+// {
+// 	char	input[MAX_INPUT];
+
+// 	while (1)
+// 	{
+// 		write(1, "mini-shell$ ", 12);
+// 		if (!fgets(input, sizeof(input), stdin))
+// 			break ;
+// 		run_command(input);
+// 	}
+// 	return (0);
+// }
+
 int	main(void)
 {
-	char	input[MAX_INPUT];
+	char	*input;
 
 	while (1)
 	{
-		write(1, "mini-shell$ ", 12);
-		if (!fgets(input, sizeof(input), stdin))
+		input = readline("mini-shell$ ");
+		if (!input)
 			break ;
+		if (*input)
+			add_history(input);
 		run_command(input);
+		free(input);
 	}
 	return (0);
 }
+
