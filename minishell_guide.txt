@@ -1,0 +1,32 @@
+Method				Feasibility	Clean/Practical			Problems
+Character-by-character parsing	Possible	✖️ Very messy	Hard to manage quotes, variables, and pipes
+Split by space then process	Possible	✖️ Bug-prone	Doesn’t handle quotes or operators properly
+Command-by-command parsing	Possible	✖️ Inefficient	Needs implicit tokenizing anyway
+Proper tokenizer/lexer		✅ Recommended	✅ Cleanest	Easier, modular, and manageable
+
+
+
+
+
+You technically can avoid calling it “tokenizing”, but you’ll end up doing it in some form no matter what.
+ The cleanest, most reliable way is to explicitly tokenize first.
+ 
+ 
+ 
+ 
+ 
+ 
+ visit chatgpt to see more...
+ 
+ 
+Algorithm	Data Structure		How it works
+DFS		Recursion / Stack	Go deep before backtracking
+BFS		Queue			Visit level by level
+
+
+
+
+
+
+
+
