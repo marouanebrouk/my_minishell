@@ -95,19 +95,6 @@ void	run_command(char *input)
 	}
 }
 
-// int	main(void)
-// {
-// 	char	input[MAX_INPUT];
-
-// 	while (1)
-// 	{
-// 		write(1, "mini-shell$ ", 12);
-// 		if (!fgets(input, sizeof(input), stdin))
-// 			break ;
-// 		run_command(input);
-// 	}
-// 	return (0);
-// }
 
 int	main(void)
 {
@@ -125,4 +112,3 @@ int	main(void)
 	}
 	return (0);
 }
-
