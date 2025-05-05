@@ -11,6 +11,14 @@
 #define MAX_ARGS 100
 
 
+int ft_general_exec(t_node)
+{
+	if(is_builtin(node->cmd))
+		exec_command(node);
+	return (1);
+}
+
+
 int ft_strcmp(char *s1, char *s2)
 {
     int i = 0;
