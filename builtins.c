@@ -35,7 +35,7 @@ int main()
     char *name = "HASSAN";
     char *value= "STUDENT";
     setenv(name, value, 1);
-    printf("%s \n",getenv(name));
+    printf("%s \n",getenv("PATH"));
 
     return 0;
 }
