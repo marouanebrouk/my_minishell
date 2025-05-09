@@ -133,7 +133,6 @@ int	redir_check(char *cmd, int i)
 {
 	e_token	n;
 	n = get_the_next_token(cmd, i);
-    printf ("%d\n", n);
 	if (n != NOT || n == END)
 		return (0);
 	return (1);
@@ -268,7 +267,62 @@ void ft_print_token(t_token *token)
         token = token->next;
     }
 }
+
+
+
+
+
 // EXECUTION PHASE
+#include "mini2.h"
+
+
+char	*ft_strjoin(char *s1, char *s2)
+{
+	char	*new;
+	size_t	len1;
+	size_t	len2;
+	size_t	j;
+	size_t	i;
+
+	if (!s1 || !s2)
+		return (NULL);
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	new = malloc(len1 + len2 + 1);
+	if (!new)
+		return (NULL);
+	i = 0;
+	while (i < len1)
+	{
+		new[i] = s1[i];
+		i++;
+	}
+	j = 0;
+	while (j < len2)
+		new[i++] = s2[j++];
+	new[i] = '\0';
+	return (new);
+}
+
+int	ft_strncmp(char *s1, char *s2, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	if (!s1[i] && !s2[i])
+		return (0);
+	while ((s1[i] || s2[i]) && i < n)
+	{
+		if (s1[i] != s2[i])
+			return (s1[i] - s2[i]);
+		i++;
+	}
+	return (0);
+}
+
+
+
+
 
 
 int ft_strcmp(char *s1, char *s2)
@@ -279,6 +333,8 @@ int ft_strcmp(char *s1, char *s2)
     return (s1[i] - s2[i]);
 }
 
+
+
 int is_builtin(char *cmd)
 {
     if (!ft_strcmp(cmd,"cd") || !ft_strcmp(cmd,"pwd") || !ft_strcmp(cmd,"echo") || !ft_strcmp(cmd,"exit") || !ft_strcmp(cmd,"export") || !ft_strcmp(cmd,"env")
@@ -286,6 +342,33 @@ int is_builtin(char *cmd)
         return (1);
     return(0);
 }
+
+
+void ft_fu_echo(t_token *list)
+{
+    
+}
+
+
+void ft_echo(t_token *list)
+{
+    int i;
+    
+    i = 0;
+    if (!ft_strcmp(list->argument[1],"-n"))
+        i = 2;
+    while (list->argument && list->argument[i])
+    {
+        printf("%s", list->argument[i]);
+        if (list->argument[i + 1])
+            printf(" ");
+        i++;
+    }
+    if (ft_strcmp(list->argument[1],"-n"))
+        printf("\n");
+}
+
+
 void	ft_handle_builtins(t_token *list)
 {
 	if (!ft_strcmp(list->value, "cd"))
@@ -304,38 +387,11 @@ void	ft_handle_builtins(t_token *list)
 			perror("pwd");
 	}
 	else if (!ft_strcmp(list->value, "echo"))
-	{
-		int i = 1;
-		while (list->argument && list->argument[i])
-		{
-			printf("%s", list->argument[i]);
-			if (list->argument[i + 1])
-				printf(" ");
-			i++;
-		}
-		printf("\n");
-	}
+        ft_echo(list);
 	else if (!ft_strcmp(list->argument[0], "exit"))
 		exit(1);
 }
 
-
-//change type of arguments to a double pointer;
-
-void ft_general_exec(t_token *list)
-{
-    split_args_from_cmd(list);
-    int pid = 0;
-    if(is_builtin(list->value))
-        ft_handle_builtins(list);
-    else
-    {
-        // if (fork() == -1)
-        // {
-
-        // }
-    }
-}
 
 void split_args_from_cmd(t_token *token)
 {
@@ -352,6 +408,69 @@ void split_args_from_cmd(t_token *token)
 }
 
 
+
+void ft_execute_cmd(t_token *list, char **envp)
+{
+        int pid = 0;
+        char *path_to_exec = ft_get_path_cmd(list, envp);
+        pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+        else if (pid == 0)
+        {
+            execve(path_to_exec,list->argument,envp);
+            perror("execve");
+            exit(1);
+        }
+        wait(NULL);
+}
+//change type of arguments to a double pointer;
+void ft_general_exec(t_token *list,char **envp)
+{
+    split_args_from_cmd(list);
+    //print arguments of each node
+    // get_node_args(list);
+    // exit(1);
+    // arahna(list);
+    if(is_builtin(list->value))
+        ft_handle_builtins(list);
+    else
+    {
+        ft_execute_cmd(list,envp);  
+    }
+}
+
+
+
+char *ft_get_path_cmd(t_token *list,char **envp)
+{
+    int i = -1;
+    char **paths;
+
+    // while (envp[++i])
+    // {
+        // if (ft_strncmp(envp[i],"PATH=",5) == 0)
+            // break ;
+    // }
+    paths = ft_split(getenv("PATH"),':');
+    i = -1;
+    while(paths[++i])
+    {
+        paths[i] = ft_strjoin(paths[i],"/");
+        paths[i] = ft_strjoin(paths[i],list->value);
+    }
+    i = -1;
+    while(paths[++i])
+        if(access(paths[i], F_OK | X_OK) == 0)
+            break;
+    return (paths[i]);
+}
+
+
+
 void arahna(t_token *list)
 {
     while (list)
@@ -362,21 +481,21 @@ void arahna(t_token *list)
 }
 
 // "here i print the node arguments after spliting them"
-void get_node_args(t_token *list)
-{
-    int i = 0;
-    printf("did arguments changed ?\n");
-    while (list)
-    {
-        i = 0;
-        while (list->argument && list->argument[i])
-        {
-            printf("%s \n",list->argument[i]);
-            i++;
-        }
-    list = list->next;
-    }
-}
+// void get_node_args(t_token *list)
+// {
+//     int i = 0;
+//     printf("did arguments changed ?\n");
+//     while (list)
+//     {
+//         i = 0;
+//         while (list->argument && list->argument[i])
+//         {
+//             printf("argument %d %s \n",i,list->argument[i]);
+//             i++;
+//         }
+//         list = list->next;
+//     }
+// }
 
 int main(int ac, char **av, char **envp)
 {
@@ -387,7 +506,7 @@ int main(int ac, char **av, char **envp)
     t_token *tokens;
     char *cmd;
     t_redir *list_of_reder = NULL;
-    
+
     while (1)
     {
         cmd = readline(GREEN "bash$ " RESET);
@@ -405,11 +524,18 @@ int main(int ac, char **av, char **envp)
         // if (tokens)
         // {
         //     // ft_print_token(tokens);
-        //     // arahna(tokens);
+        //     arahna(tokens);
         // }
+        if (tokens != NULL)
+            ft_general_exec(tokens,envp);
 
-        ft_general_exec(tokens);
-        // get_node_args(tokens);
+
+
+
+// i checked the args built ins correct ,  i should check path if its correct and then access it and then execv.
+
+
+
         // t_redir     *red = tokens->rederiction;
         // ft_print_redirection(red);
         // if (!tokens->rederiction->next->file)
