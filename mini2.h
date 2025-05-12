@@ -6,7 +6,7 @@
 
 int ft_strcmp(char *s1, char *s2);
 int is_builtin(char *cmd);
-void	ft_handle_builtins(t_token *list);
+void	ft_handle_builtins(t_token *list,char **envp);
 void split_args_from_cmd(t_token *token);
 char *ft_get_path_cmd(t_token *list,char **envp);
 void arahna(t_token *list);

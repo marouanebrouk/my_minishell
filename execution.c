@@ -322,9 +322,6 @@ int	ft_strncmp(char *s1, char *s2, size_t n)
 
 
 
-
-
-
 int ft_strcmp(char *s1, char *s2)
 {
     int i = 0;
@@ -344,32 +341,77 @@ int is_builtin(char *cmd)
 }
 
 
-void ft_fu_echo(t_token *list)
+int	echo_has_n_option(char *arg)
 {
+	int	i;
     
+	i = 2;
+	if (!arg || arg[0] != '-' || arg[1] != 'n')
+		return (0);
+	while (arg[i])
+	{
+		if (arg[i] != 'n')
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
 
-void ft_echo(t_token *list)
+#include <stdio.h>
+
+int	ft_echo(t_token *list)
 {
-    int i;
-    
-    i = 0;
-    if (!ft_strcmp(list->argument[1],"-n"))
-        i = 2;
-    while (list->argument && list->argument[i])
-    {
-        printf("%s", list->argument[i]);
-        if (list->argument[i + 1])
-            printf(" ");
-        i++;
-    }
-    if (ft_strcmp(list->argument[1],"-n"))
-        printf("\n");
+	int	i = 1;
+	int	newline = 1;
+
+	while (list->argument && list->argument[i] && echo_has_n_option(list->argument[i]))
+	{
+		newline = 0;
+		i++;
+	}
+	while (list->argument[i])
+	{
+		printf("%s", list->argument[i]);
+		if (list->argument[i + 1])
+			printf(" ");
+		i++;
+	}
+	if (newline)
+		printf("\n");
+	return (0);
 }
 
 
-void	ft_handle_builtins(t_token *list)
+// void ft_echo(t_token *list)
+// {
+//     int i;
+
+//     i = 0;
+//     if (!ft_strcmp(list->argument[1],"-n"))
+//         i = 2;
+//     while (list->argument && list->argument[i])
+//     {
+//         printf("%s", list->argument[i]);
+//         if (list->argument[i + 1])
+//             printf(" ");
+//         i++;
+//     }
+//     if (ft_strcmp(list->argument[1],"-n"))
+//         printf("\n");
+// }
+
+
+void ft_env(t_token *list, char **envp)
+{
+    (void)envp;
+    int i = -1;
+    extern char **environ;
+    while(environ && environ[++i])
+        printf("%s \n",environ[i]);
+}
+
+void	ft_handle_builtins(t_token *list, char **envp)
 {
 	if (!ft_strcmp(list->value, "cd"))
 	{
@@ -389,7 +431,12 @@ void	ft_handle_builtins(t_token *list)
 	else if (!ft_strcmp(list->value, "echo"))
         ft_echo(list);
 	else if (!ft_strcmp(list->argument[0], "exit"))
-		exit(1);
+    {
+        printf("exit\n");
+		exit(0);
+    }
+    else if (!ft_strcmp(list->value,"env"))
+        ft_env(list,envp);
 }
 
 
@@ -421,13 +468,13 @@ void ft_execute_cmd(t_token *list, char **envp)
         }
         else if (pid == 0)
         {
-            execve(path_to_exec,list->argument,envp);
-            perror("execve");
+            execve(path_to_exec, list->argument, envp);
+            perror("execv: No such file or directory");
             exit(1);
         }
         wait(NULL);
 }
-//change type of arguments to a double pointer;
+
 void ft_general_exec(t_token *list,char **envp)
 {
     split_args_from_cmd(list);
@@ -436,11 +483,9 @@ void ft_general_exec(t_token *list,char **envp)
     // exit(1);
     // arahna(list);
     if(is_builtin(list->value))
-        ft_handle_builtins(list);
+        ft_handle_builtins(list,envp);
     else
-    {
-        ft_execute_cmd(list,envp);  
-    }
+        ft_execute_cmd(list,envp);
 }
 
 
