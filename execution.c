@@ -383,23 +383,6 @@ int	ft_echo(t_token *list)
 }
 
 
-// void ft_echo(t_token *list)
-// {
-//     int i;
-
-//     i = 0;
-//     if (!ft_strcmp(list->argument[1],"-n"))
-//         i = 2;
-//     while (list->argument && list->argument[i])
-//     {
-//         printf("%s", list->argument[i]);
-//         if (list->argument[i + 1])
-//             printf(" ");
-//         i++;
-//     }
-//     if (ft_strcmp(list->argument[1],"-n"))
-//         printf("\n");
-// }
 
 
 void ft_env(t_token *list, char **envp)
@@ -475,15 +458,35 @@ void ft_execute_cmd(t_token *list, char **envp)
         wait(NULL);
 }
 
+
+
+
+
+int is_there_pipe(t_token *list)
+{
+    while (list)
+    {
+        if (list->type == PIPE) // assuming PIPE is a defined enum/type
+            return (1);
+        list = list->next;
+    }
+    return (0);
+}
+
+
+
+
 void ft_general_exec(t_token *list,char **envp)
 {
     split_args_from_cmd(list);
     //print arguments of each node
-    // get_node_args(list);
     // exit(1);
     // arahna(list);
+    // get_node_args(list);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
+    else if (is_there_pipe(list) == 1)
+        execute_pipe();
     else
         ft_execute_cmd(list,envp);
 }
@@ -512,20 +515,20 @@ char *ft_get_path_cmd(t_token *list, char **envp)
 
 
 
-void arahna(t_token *list)
-{
-    while (list)
-    {
-        printf("token is [%s]  type : [%d] \n",list->value,list->type);
-        list = list->next;
-    }
-}
+// void arahna(t_token *list)
+// {
+//     while (list)
+//     {
+//         printf("token is [%s]  type : [%d] \n",list->value,list->type);
+//         list = list->next;
+//     }
+// }
 
 // "here i print the node arguments after spliting them"
 // void get_node_args(t_token *list)
 // {
 //     int i = 0;
-//     printf("did arguments changed ?\n");
+//     printf("Arguments changed ?\n");
 //     while (list)
 //     {
 //         i = 0;
