@@ -490,16 +490,12 @@ void ft_general_exec(t_token *list,char **envp)
 
 
 
-char *ft_get_path_cmd(t_token *list,char **envp)
+char *ft_get_path_cmd(t_token *list, char **envp)
 {
-    int i = -1;
+    int i;
     char **paths;
 
-    // while (envp[++i])
-    // {
-        // if (ft_strncmp(envp[i],"PATH=",5) == 0)
-            // break ;
-    // }
+    i = -1;
     paths = ft_split(getenv("PATH"),':');
     i = -1;
     while(paths[++i])
@@ -574,10 +570,6 @@ int main(int ac, char **av, char **envp)
         if (tokens != NULL)
             ft_general_exec(tokens,envp);
 
-
-
-
-// i checked the args built ins correct ,  i should check path if its correct and then access it and then execv.
 
 
 
