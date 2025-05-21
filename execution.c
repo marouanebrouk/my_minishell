@@ -462,11 +462,17 @@ void ft_execute_cmd(t_token *list, char **envp)
 
 
 
+void execute_pipe(t_token *list,char **envp)
+{
+    
+}
+
+
 int is_there_pipe(t_token *list)
 {
     while (list)
     {
-        if (list->type == PIPE) // assuming PIPE is a defined enum/type
+        if (list->type == PIPE)
             return (1);
         list = list->next;
     }
@@ -485,11 +491,14 @@ void ft_general_exec(t_token *list,char **envp)
     // get_node_args(list);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
-    else if (is_there_pipe(list) == 1)
-        execute_pipe();
+    else if (is_there_pipe(list))
+        execute_pipe(list,envp);
     else
         ft_execute_cmd(list,envp);
 }
+
+
+
 
 
 
