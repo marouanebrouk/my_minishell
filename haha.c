@@ -26,20 +26,15 @@ void *ft_ft(int type,int size, ...)
 
 int main()
 {
-    // void *ptr2 = ft_ft(4,5,10,13,10,10,20);
-    // int i = 0;
-    // ptr2 = (int *)ptr2;
-    // int *haha;
-    // haha = (int *)ptr2;
-    // int size = 5;
-    // while (i < 5)
-    // {
-    //     printf("%d \n",haha[i]);
-    //     i++;
-    // }
-    int a = 80;
-    int *b = &a;
-    b++;
-    printf("hahahah %d \n",*b);
+    void *ptr2 = ft_ft(4,5,10,13,10,10,20);
+    int i = 0;
+    int *haha;
+    haha = (int *)ptr2;
+    int size = 5;
+    while (i < 5)
+    {
+        printf("%d \n",haha[i]);
+        i++;
+    }
 }
 
