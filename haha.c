@@ -4,36 +4,38 @@
 #include <stdlib.h>
 
 
-void *ft_ft(int type,int size, ...)
+void *ft_ft(int type, int size, ...)
 {
     va_list args;
     va_start(args,size);
-    void  *ptr;
+
+    void *ptr;
+    ptr = malloc(type * size);
+    
+
     int i = 0;
-    if (type == 1)
-    ptr = malloc(1*size);
-    else if (type == 4)
-        ptr = malloc(4*size);
-    ptr = (int *)ptr;
     while (i < size)
     {
-        ((int *)ptr)[i] = va_arg(args,int);
+        if (type == 4)
+            ((int *)ptr)[i] = va_arg(args,int);
+        else if (type == 1)
+            ((char *)ptr)[i] = va_arg(args,int);
         i++;
     }
-
+    va_end(args);
     return (ptr);
 }
 
 int main()
 {
-    void *ptr2 = ft_ft(4,5,10,13,10,10,20);
+    // void *ptr2 = ft_ft(1,3,'c','z','d');
+    void *ptr2 = ft_ft(4,6,521,12,312,456,4986,26);
     int i = 0;
-    int *haha;
-    haha = (int *)ptr2;
+    
     int size = 5;
-    while (i < 5)
+    while (i < 6)
     {
-        printf("%d \n",haha[i]);
+        printf("%d \n",((int*)ptr2)[i]);
         i++;
     }
 }
