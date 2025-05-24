@@ -464,7 +464,7 @@ void ft_execute_cmd(t_token *list, char **envp)
 
 void execute_pipe(t_token *list,char **envp)
 {
-    
+    // how many pipes are there;
 }
 
 
