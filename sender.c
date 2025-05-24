@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
-
-
-#include <stdio.h>
 #include <stdlib.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 
 
 
@@ -21,15 +16,15 @@ void ft_send_bit(char c,int pid)
         if (((c >> i) & 1) == 0)
         {
             if(kill(pid, SIGUSR1) == -1)
-                printf("SIGUSR1 NOT SEND");
+                exit(write(2,"SIG1 NOT SEND\n",14));
         }
         else
         {
             if (kill(pid, SIGUSR2) == -1)
-                printf("SIGUSR1 NOT SEND");
+                exit(write(2,"SIG2 NOT SEND\n",14));
         }
+    usleep(1000);
     }
-    // usleep(1300);
 }
 
 void ft_send_message(char *str,int pid)
@@ -40,6 +35,7 @@ void ft_send_message(char *str,int pid)
     {
         ft_send_bit(str[i],pid);
         i++;
+        usleep(1000);
     }
     ft_send_bit('\n',pid);
     ft_send_bit('\0',pid);
@@ -52,6 +48,8 @@ int main(int ac, char **av)
     if (ac == 3)
     {
         int pid = atoi(av[1]);
+        if (pid <= 0)
+            return (printf("W9 \n"));
         ft_send_message(av[2],pid);
     }
     else

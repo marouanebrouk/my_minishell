@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <signal.h>
 
-int flag = 0;
+// int flag = 0;
 
 void ft_handler(int signum)
 {
-    static char c;
+    static char c = 0;
     static int bit_count = 0;
     if (signum == SIGUSR1)
         c = (c << 1) | 0;
@@ -24,7 +24,8 @@ void ft_handler(int signum)
 
 int main()
 {
-    int pid = getpid();
+    int pid;
+    pid = getpid();
     printf("pid is %d\n",pid);
     signal(SIGUSR1,ft_handler);
     signal(SIGUSR2,ft_handler);
