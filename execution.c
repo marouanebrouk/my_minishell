@@ -438,9 +438,33 @@ void split_args_from_cmd(t_token *token)
 }
 
 
+int ft_count_pipes(t_token *list)
+{
+    int count = 0;
+    while (list)
+    {
+        if (list->type == PIPE)
+            count++;
+        list = list->next;
+    }
+    return (count);
+}
+
+int is_there_pipe(t_token *list)
+{
+    while (list)
+    {
+        if (list->type == PIPE)
+            return (1);
+        list = list->next;
+    }
+    return (0);
+}
+
 void split_with_pipe(t_token *list)
 {
-
+    int count_pipes = ft_count_pipes(list);
+    printf("there is %d pipe(s)\n",count_pipes);
 }
 
 
@@ -473,41 +497,16 @@ void execute_pipe(t_token *list,char **envp)
 }
 
 
-int ft_count_pipes(t_token *list)
-{
-    int count = 0;
-    while (list)
-    {
-        if (list->type == PIPE)
-            count++;
-        list = list->next;
-    }
-    return (count);
-}
-
-int is_there_pipe(t_token *list)
-{
-    while (list)
-    {
-        if (list->type == PIPE)
-            return (1);
-        list = list->next;
-    }
-    return (0);
-}
-
 
 
 
 void ft_general_exec(t_token *list,char **envp)
 {
-    arahna(list);
+    // arahna(list);
     split_args_from_cmd(list);
-    //print arguments of each node
-    // exit(1);
-    printf("now lets see");
-    arahna(list);
-    get_node_args(list);
+    // printf("now lets see");
+    // arahna(list);
+    // get_node_args(list);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
     else if (is_there_pipe(list))
