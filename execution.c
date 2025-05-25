@@ -468,6 +468,18 @@ void execute_pipe(t_token *list,char **envp)
 }
 
 
+int ft_count_pipes(t_token *list)
+{
+    int count = 0;
+    while (list)
+    {
+        if (list->type == PIPE)
+            count++;
+        list = list->next;
+    }
+    return (count);
+}
+
 int is_there_pipe(t_token *list)
 {
     while (list)
