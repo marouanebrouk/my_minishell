@@ -11,7 +11,7 @@ void ft_handler(int signum)
     static int bit_count = 0;
     if (signum == SIGUSR1)
         c = (c << 1) | 0;
-    else if (signum == SIGUSR1)
+    else if (signum == SIGUSR2)
         c = (c << 1) | 1;
     bit_count++;
     if (bit_count == 8)
