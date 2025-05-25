@@ -438,6 +438,11 @@ void split_args_from_cmd(t_token *token)
 }
 
 
+void split_with_pipe(t_token *list)
+{
+
+}
+
 
 void ft_execute_cmd(t_token *list, char **envp)
 {
@@ -496,11 +501,13 @@ int is_there_pipe(t_token *list)
 
 void ft_general_exec(t_token *list,char **envp)
 {
+    arahna(list);
     split_args_from_cmd(list);
     //print arguments of each node
     // exit(1);
-    // arahna(list);
-    // get_node_args(list);
+    printf("now lets see");
+    arahna(list);
+    get_node_args(list);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
     else if (is_there_pipe(list))
@@ -536,31 +543,113 @@ char *ft_get_path_cmd(t_token *list, char **envp)
 
 
 
-// void arahna(t_token *list)
-// {
-//     while (list)
-//     {
-//         printf("token is [%s]  type : [%d] \n",list->value,list->type);
-//         list = list->next;
-//     }
-// }
+void arahna(t_token *list)
+{
+    while (list)
+    {
+        printf("token is [%s]  type : [%d] \n",list->value,list->type);
+        list = list->next;
+    }
+}
 
 // "here i print the node arguments after spliting them"
-// void get_node_args(t_token *list)
+void get_node_args(t_token *list)
+{
+    int i = 0;
+    printf("Arguments changed ?\n");
+    while (list)
+    {
+        i = 0;
+        while (list->argument && list->argument[i])
+        {
+            printf("argument %d %s \n",i,list->argument[i]);
+            i++;
+        }
+        list = list->next;
+    }
+}
+
+
+
+
+
+
+
+// pipe engine
+
+
+// void	execute_pipeline(char ***cmds, int count)
 // {
-//     int i = 0;
-//     printf("Arguments changed ?\n");
-//     while (list)
-//     {
-//         i = 0;
-//         while (list->argument && list->argument[i])
-//         {
-//             printf("argument %d %s \n",i,list->argument[i]);
-//             i++;
-//         }
-//         list = list->next;
-//     }
+// 	int		i = 0;
+// 	int		pipes[1024][2];
+// 	pid_t	pid;
+
+// 	while (i < count - 1)
+// 	{
+// 		if (pipe(pipes[i]) == -1)
+// 		{
+// 			perror("pipe");
+// 			exit(1);
+// 		}
+// 		i++;
+// 	}
+
+// 	i = 0;
+// 	while (i < count)
+// 	{
+// 		pid = fork();
+// 		if (pid == -1)
+// 		{
+// 			perror("fork");
+// 			exit(1);
+// 		}
+
+// 		if (pid == 0) // child
+// 		{
+// 			if (i > 0)
+// 				dup2(pipes[i - 1][0], STDIN_FILENO); // read from prev pipe
+// 			if (i < count - 1)
+// 				dup2(pipes[i][1], STDOUT_FILENO); // write in next pipe
+
+// 			// close all pipes
+// 			int j = 0;
+// 			while (j < count - 1)
+// 			{
+// 				close(pipes[j][0]);
+// 				close(pipes[j][1]);
+// 				j++;
+// 			}
+
+// 			execvp(cmds[i][0], cmds[i]);
+// 			perror("exec");
+// 			exit(1);
+// 		}
+// 		i++;
+// 	}
+
+// 	// parent: close all and wait
+// 	i = 0;
+// 	while (i < count - 1)
+// 	{
+// 		close(pipes[i][0]);
+// 		close(pipes[i][1]);
+// 		i++;
+// 	}
+
+// 	i = 0;
+// 	while (i < count)
+// 	{
+// 		wait(NULL);
+// 		i++;
+// 	}
 // }
+
+
+
+
+
+
+
 
 int main(int ac, char **av, char **envp)
 {
@@ -588,8 +677,8 @@ int main(int ac, char **av, char **envp)
         tokens = tokenize(cmd);
         // if (tokens)
         // {
-        //     // ft_print_token(tokens);
-        //     arahna(tokens);
+        // ft_print_token(tokens);
+        // arahna(tokens);
         // }
         if (tokens != NULL)
             ft_general_exec(tokens,envp);

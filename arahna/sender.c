@@ -35,7 +35,6 @@ void ft_send_message(char *str,int pid)
     {
         ft_send_bit(str[i],pid);
         i++;
-        usleep(1000);
     }
     ft_send_bit('\n',pid);
     ft_send_bit('\0',pid);

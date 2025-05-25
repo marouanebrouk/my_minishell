@@ -1,0 +1,84 @@
+✅ Step 1: Detect if there’s a pipe
+You already have a t_token *list. Let’s write a simple helper:
+
+c
+Copy
+Edit
+int contains_pipe(t_token *list)
+{
+    while (list)
+    {
+        if (list->type == PIPE) // assuming PIPE is a defined enum/type
+            return (1);
+        list = list->next;
+    }
+    return (0);
+}
+You can now call this in ft_general_exec:
+
+c
+Copy
+Edit
+void ft_general_exec(t_token *list, char **envp)
+{
+    split_args_from_cmd(list);
+
+    if (is_builtin(list->value))
+        ft_handle_builtins(list, envp);
+    else if (contains_pipe(list))
+        ft_execute_pipeline(list, envp); // You’ll implement this next
+    else
+        ft_execute_cmd(list, envp);
+}
+✅ Step 2: Prepare for ft_execute_pipeline
+You want to:
+
+Split the token list into subcommands using | as a separator.
+
+Convert each subcommand into an array of arguments (char **args).
+
+Collect them into a char ***commands.
+
+You’ll want a function like:
+c
+Copy
+Edit
+char ***token_list_to_command_matrix(t_token *list, int *cmd_count);
+Which:
+
+Allocates memory
+
+Creates one char **args per segment between pipes
+
+Sets *cmd_count to the number of commands
+
+✅ Step 3: Example of token list to char ***
+Imagine this token list:
+
+arduino
+Copy
+Edit
+"ls" NOT → "|" PIPE → "grep" NOT → "a.out" NOT → "|" PIPE → "wc" NOT → "-l" NOT
+It should give:
+
+c
+Copy
+Edit
+commands[0] = {"ls", NULL};
+commands[1] = {"grep", "a.out", NULL};
+commands[2] = {"wc", "-l", NULL};
+I can help you write this exact function (token_list_to_command_matrix) if you're ready for that next.
+
+✅ Final Integration Plan
+Once you finish:
+
+contains_pipe
+
+token_list_to_command_matrix
+
+Call execute_pipeline(commands, count);
+
+You’ll have a fully working pipe system.
+
+🔄 Shall we write token_list_to_command_matrix next?
+It’s a bit of logic, but I’ll walk you through it step by step. Ready?
