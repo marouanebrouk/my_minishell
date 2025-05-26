@@ -80,14 +80,18 @@ char	*ft_substr(char *s, unsigned int start, int	len)
 	return (new_str);
 }
 
-
 int ft_strlen(char *s)
 {
+	if (!s)
+		return (0);
 	int i = 0;
 	while (s[i])
 		i++;
 	return i;
 }
+
+
+
 
 e_token get_token(char c, char next)
 {
@@ -170,6 +174,16 @@ void add_node_back(t_token *new, t_token **list)
 	tmp->next = new;
 }
 
+int	ft_strncmp(const char	*s1, const char	*s2)
+{
+	int	i;
+
+	i = 0;
+	while (s1[i] && s2[i] && s1[i] == s2[i])
+		i++;
+	return (s1[i] -s2[i]);
+}
+
 void        print_token(t_token *curr)
 {
     if (curr->type == PIPE)
@@ -205,6 +219,7 @@ int     q_handler(char  *cmd)
     }
     return (1);
 }
+
 static	int	is_char(char c, char charset)
 {
 	return (c == charset);
@@ -251,4 +266,31 @@ char	**ft_split(char *str, char charset)
 	}
 	res[k] = NULL;
 	return (res);
+}
+
+char	*ft_strjoin(char	*s1, char *s2)
+{
+	char	*str;
+	int 	len1;
+	int		len2;
+
+	if (!s1 && !s2)
+		return (NULL);
+	if (s1)
+		len1 = ft_strlen(s1);
+	else
+		len1 = 0;
+	if (s2)
+		len2 = ft_strlen(s2);
+	else
+		len2 = 0;
+	str = (char *)malloc(sizeof(char) * (len1 + len2 + 1));
+	if (!str)
+		return (NULL);
+
+	if (s1)
+		ft_strlcpy(str, s1, len1 + 1);
+	if (s2)
+		ft_strlcpy(str + len1, s2, len2 + 1);
+	return (str);
 }

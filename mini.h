@@ -3,6 +3,9 @@
 #include <unistd.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <limits.h>
+#include <signal.h>
+#include <sys/wait.h>
 #define SEP " \t\n"
 # define SYNTAX_ERR		"bash: syntax error near unexpected token\n "
 #ifndef MINI_H
@@ -21,7 +24,9 @@ typedef     enum  s_token
 typedef struct      s_redirection
 {
     e_token     type;
+    int     fd;
     char        *file;
+    char        *data;
     struct  s_redirection *next;
 }t_redir;
 
@@ -34,23 +39,13 @@ typedef struct  b_token
     struct  b_token *next;
 }t_token;
 
-
-// typedef struct s_cmd
-// {
-//     char        **args;         // Full argv-like array: {"grep", "txt", NULL}
-//     t_redir     *redirs;
-//     int         pipe_in;        
-//     int         pipe_out;       
-//     struct s_cmd *next;         // Next command in the pipeline
-// }   t_cmd;
-
+char	*ft_strjoin(char	*s1, char *s2);
 char	**ft_split(char *str, char charset);
 char	*ft_strchr(const char	*s, int c);
 int     ft_strlen(char *str);
-char *get_next_line(int fd);
+
 int     is_set(char c, char *set);
 char        *ft_remove_space(char   *s1, char *set);
-void        ft_check_synatx_error(char     *line);
 int     q_handler(char  *cmd);
 void        ft_print_token(t_token *tokens);
 void        print_token(t_token *curr);
@@ -63,5 +58,6 @@ e_token get_token(char c, char next);
 char	*ft_strdup(char	*src);
 char	*ft_substr(char *s, unsigned int start, int	len);
 unsigned int	ft_strlcpy(char *dest, char *src, unsigned int size);
+char	*ft_strjoin(char	*s1, char *s2);
 int is_sep(char c);
 #endif
