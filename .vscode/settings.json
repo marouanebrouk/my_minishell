@@ -8,6 +8,8 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c",
-        "mini.h": "c"
+        "mini.h": "c",
+        "history.h": "c",
+        "readline.h": "c"
     }
 }

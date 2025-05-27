@@ -1,3 +1,6 @@
+#ifndef MINI_H
+# define MINI_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,10 +9,11 @@
 #include <limits.h>
 #include <signal.h>
 #include <sys/wait.h>
+#define GREEN "\033[0;32m"
+#define RESET "\033[0m"
 #define SEP " \t\n"
 # define SYNTAX_ERR		"bash: syntax error near unexpected token\n "
-#ifndef MINI_H
-#define MINI_H
+
 typedef     enum  s_token
 {
     PIPE,
@@ -60,4 +64,22 @@ char	*ft_substr(char *s, unsigned int start, int	len);
 unsigned int	ft_strlcpy(char *dest, char *src, unsigned int size);
 char	*ft_strjoin(char	*s1, char *s2);
 int is_sep(char c);
+
+
+
+
+
+
+// EXECUTION
+
+int ft_strcmp(char *s1, char *s2);
+// int	ft_strncmp(char	*s1,  char	*s2);
+int is_builtin(char *cmd);
+void	ft_handle_builtins(t_token *list,char **envp);
+void split_args_from_cmd(t_token *token);
+char *ft_get_path_cmd(t_token *list, char **envp);
+void arahna(t_token *list);
+void get_node_args(t_token *list);
+
+
 #endif
