@@ -1,4 +1,4 @@
-#ifndef MINI_H
+    #ifndef MINI_H
 # define MINI_H
 
 #include <stdio.h>

@@ -1,5 +1,11 @@
 #include "mini.h"
 
+typedef struct s_pipe
+{
+    char *value;
+    char **argument;
+    struct s_pipe *next;
+}t_pipe;
 
 
 t_redir *new_redirection(char *file, e_token token)
@@ -455,6 +461,7 @@ void ft_general_exec(t_token *list,char **envp)
     split_args_from_cmd(list);
     arahna(list);
     get_node_args(list);
+    split_with_pipe(list);
     exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
