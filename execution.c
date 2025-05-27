@@ -419,7 +419,7 @@ void split_with_pipe(t_token *list)
 void ft_execute_cmd(t_token *list, char **envp)
 {
         int pid = 0;
-        char *path_to_exec = ft_get_path_cmd(list, envp);
+        char *path_to_exec = ft_get_path_cmd(list->value, envp);
         pid = fork();
         if (pid == -1)
         {
@@ -429,6 +429,7 @@ void ft_execute_cmd(t_token *list, char **envp)
         else if (pid == 0)
         {
             execve(path_to_exec, list->argument, envp);
+            // write(1,&list->argument[0],ft_strlen(list->argument[0]))
             printf("command not found : %s \n",list->argument[0]);
             exit(1);
         }
@@ -441,7 +442,7 @@ void ft_execute_cmd(t_token *list, char **envp)
 
 void execute_pipe(t_token *list, char **envp)
 {
-    // count pipes first;
+    
 }
 
 
@@ -450,10 +451,11 @@ void execute_pipe(t_token *list, char **envp)
 
 void ft_general_exec(t_token *list,char **envp)
 {
-    // arahna(list);
+    arahna(list);
     split_args_from_cmd(list);
-    // arahna(list);
-    // get_node_args(list);
+    arahna(list);
+    get_node_args(list);
+    exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
     else if (is_there_pipe(list))
@@ -467,7 +469,7 @@ void ft_general_exec(t_token *list,char **envp)
 
 
 
-char *ft_get_path_cmd(t_token *list, char **envp)
+char *ft_get_path_cmd(char *value, char **envp)
 {
     int i;
     char **paths;
@@ -475,15 +477,15 @@ char *ft_get_path_cmd(t_token *list, char **envp)
     i = -1;
     paths = ft_split(getenv("PATH"),':');
     i = -1;
-    while                   (paths[++i])
+    while(paths[++i])
     {
-    paths[i] = ft_strjoin(paths[i],"/");
-    paths[i] = ft_strjoin(paths[i],list->value);
+        paths[i] = ft_strjoin(paths[i],"/");
+        paths[i] = ft_strjoin(paths[i],value);
     }
     i = -1;
     while(paths[++i])
-    if(access(paths[i], F_OK | X_OK) == 0)
-        break;
+        if(access(paths[i], F_OK | X_OK) == 0)
+            break;
     return (paths[i]);
 }
 
@@ -504,7 +506,7 @@ void arahna(t_token *list)
 void get_node_args(t_token *list)
 {
     int i = 0;
-    printf("Arguments filled ...\n");
+    printf("Arguments of each node ...\n");
     while (list)
     {
         i = 0;
@@ -515,6 +517,7 @@ void get_node_args(t_token *list)
             i++;
         }
         list = list->next;
+        //ls -l | strings | grep a.out | wc -l | wc -c
     }
 }
 
@@ -626,8 +629,8 @@ int main(int ac, char **av, char **envp)
         tokens = tokenize(cmd);
         // if (tokens)
         // {
-        // ft_print_token(tokens);
-        // arahna(tokens);
+        //      arahna(tokens);
+            // ft_print_token(tokens);
         // }
         if (tokens != NULL)
             ft_general_exec(tokens,envp);
