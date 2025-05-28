@@ -392,21 +392,33 @@ void split_args_from_cmd(t_token *token)
 }
 
 
-int ft_count_pipes(t_token *list)
+int ft_count_commands(t_token *list)
 {
     int count = 0;
     while (list)
     {
-        if (list->type == PIPE)
+        if (list->type == NOT)
             count++;
         list = list->next;
     }
     return (count);
 }
 
+int ft_count_pipes(t_token *list)
+{
+    int count_pipes = 0;
+    while(list)
+    {
+        if (list->type == PIPE)
+            count_pipes++;
+        list = list->next;
+    }
+    return (count_pipes);
+}
+
 int is_there_pipe(t_token *list)
 {
-    while (list)
+    while(list)
     {
         if (list->type == PIPE)
             return (1);
@@ -415,10 +427,14 @@ int is_there_pipe(t_token *list)
     return (0);
 }
 
+//ls -l | grep a.out | wc -l | wc -c
+
 void split_with_pipe(t_token *list)
 {
+    int count_commands = ft_count_commands(list);
     int count_pipes = ft_count_pipes(list);
-    printf("there is %d pipe(s)\n",count_pipes);
+    printf("there is %d commands \n",count_commands);
+    printf("there is %d pipes \n",count_pipes);
 }
 
 
@@ -446,15 +462,6 @@ void ft_execute_cmd(t_token *list, char **envp)
 
 
 
-void execute_pipe(t_token *list, char **envp)
-{
-    
-}
-
-
-
-
-
 void ft_general_exec(t_token *list,char **envp)
 {
     arahna(list);
@@ -465,8 +472,6 @@ void ft_general_exec(t_token *list,char **envp)
     exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
-    else if (is_there_pipe(list))
-        execute_pipe(list,envp);
     else
         ft_execute_cmd(list,envp);
 }
@@ -524,86 +529,8 @@ void get_node_args(t_token *list)
             i++;
         }
         list = list->next;
-        //ls -l | strings | grep a.out | wc -l | wc -c
     }
 }
-
-
-
-
-
-
-
-// pipe engine
-
-
-// void	execute_pipeline(char ***cmds, int count)
-// {
-// 	int		i = 0;
-// 	int		pipes[1024][2];
-// 	pid_t	pid;
-
-// 	while (i < count - 1)
-// 	{
-// 		if (pipe(pipes[i]) == -1)
-// 		{
-// 			perror("pipe");
-// 			exit(1);
-// 		}
-// 		i++;
-// 	}
-
-// 	i = 0;
-// 	while (i < count)
-// 	{
-// 		pid = fork();
-// 		if (pid == -1)
-// 		{
-// 			perror("fork");
-// 			exit(1);
-// 		}
-
-// 		if (pid == 0) // child
-// 		{
-// 			if (i > 0)
-// 				dup2(pipes[i - 1][0], STDIN_FILENO); // read from prev pipe
-// 			if (i < count - 1)
-// 				dup2(pipes[i][1], STDOUT_FILENO); // write in next pipe
-
-// 			// close all pipes
-// 			int j = 0;
-// 			while (j < count - 1)
-// 			{
-// 				close(pipes[j][0]);
-// 				close(pipes[j][1]);
-// 				j++;
-// 			}
-
-// 			execvp(cmds[i][0], cmds[i]);
-// 			perror("exec");
-// 			exit(1);
-// 		}
-// 		i++;
-// 	}
-
-// 	// parent: close all and wait
-// 	i = 0;
-// 	while (i < count - 1)
-// 	{
-// 		close(pipes[i][0]);
-// 		close(pipes[i][1]);
-// 		i++;
-// 	}
-
-// 	i = 0;
-// 	while (i < count)
-// 	{
-// 		wait(NULL);
-// 		i++;
-// 	}
-// }
-
-
 
 
 
