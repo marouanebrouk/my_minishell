@@ -427,7 +427,6 @@ int is_there_pipe(t_token *list)
     return (0);
 }
 
-//ls -l | grep a.out | wc -l | wc -c
 
 void split_with_pipe(t_token *list)
 {
