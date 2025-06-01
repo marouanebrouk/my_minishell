@@ -73,7 +73,6 @@ int is_sep(char c);
 // EXECUTION
 
 int ft_strcmp(char *s1, char *s2);
-// int	ft_strncmp(char	*s1,  char	*s2);
 int is_builtin(char *cmd);
 void	ft_handle_builtins(t_token *list,char **envp);
 void split_args_from_cmd(t_token *token);

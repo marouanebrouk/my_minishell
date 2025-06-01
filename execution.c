@@ -456,18 +456,6 @@ int ft_count_pipes(t_token *list)
 }
 
 
-int is_there_pipe(t_token *list)
-{
-    while(list)
-    {
-        if (list->type == PIPE)
-            return (1);
-        list = list->next;
-    }
-    return (0);
-}
-
-
 void print_count(t_token *list)
 {
     int count_commands = ft_count_commands(list);
@@ -534,6 +522,14 @@ void ft_execute_cmd(t_token *list, char **envp)
 // what is the schema or the road map to follow to execute this piped commands
 
 
+
+
+
+
+
+
+
+
 // void execute_piped_command(t_token *list)
 // {
 //     int pipefd[2];
@@ -543,15 +539,18 @@ void ft_execute_cmd(t_token *list, char **envp)
 // }
 
 
-void ft_general_exec(t_token *list, char **envp)
+void ft_execution(t_token *list, char **envp)
 {
     print_count(list);
-    // split_args_from_cmd(list);
-    arahna(list);
-    // get_node_args(list);
-    // count(list);
+    int n_commands = ft_count_commands(list);
+    int npipe = ft_count_pipes(list);
+    int pipefds[n_commands - 1][2];
+    if (npipe)
+        pipe(pipefds[1]);
 
-    split_args_from_cmd(list);
+
+    arahna(list);
+    // split_args_from_cmd(list);
     arahna(list);
     exit(1);
     if(is_builtin(list->value))
@@ -562,7 +561,7 @@ void ft_general_exec(t_token *list, char **envp)
 
 void ft_final_execution(t_token *list,char **evnp)
 {
-    ft_general_exec(list,evnp);
+    ft_execution(list, evnp);
 }
 
 
