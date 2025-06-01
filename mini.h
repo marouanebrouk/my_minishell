@@ -16,13 +16,13 @@
 
 typedef     enum  s_token
 {
-    PIPE,
-    IN,
-    OUT,
-    APPEND,
-    HERDOK,
-    NOT, 
-    END
+    PIPE, //0
+    IN,//1
+    OUT,//2
+    APPEND,//3
+    HERDOK,//4
+    NOT, //5
+    END//6
 }e_token;
 
 typedef struct      s_redirection

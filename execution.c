@@ -289,7 +289,7 @@ int is_builtin(char *cmd)
         return (1);
     return(0);
 }
-//echo functiuon
+
 
 int	echo_has_n_option(char *arg)
 {
@@ -367,8 +367,7 @@ int	ft_echo(t_token *list)
 
 
 
-// end echo
-// env
+
 void ft_env(t_token *list, char **envp)
 {
     (void)envp;
@@ -377,9 +376,7 @@ void ft_env(t_token *list, char **envp)
     while(environ && environ[++i])
     printf("%s \n",environ[i]);
 }
-// end env
 
-//builtin function
 
 void	ft_handle_builtins(t_token *list, char **envp)
 {
@@ -408,9 +405,8 @@ void	ft_handle_builtins(t_token *list, char **envp)
     else if (!ft_strcmp(list->value,"env"))
         ft_env(list,envp);
 }
-//end builtin function
 
-// split args from cmd
+
 void split_args_from_cmd(t_token *token)
 {
     int i = 0;
@@ -423,9 +419,17 @@ void split_args_from_cmd(t_token *token)
         }
         token = token->next;
     }
+    printf("------------argument split happened----------------\n");
 }
-// end split
 
+
+
+t_token *move_to_next_command(t_token *list)
+{
+    if (list->type != PIPE && list->next->type == NOT)
+        list = list->next;
+    return (list);
+}
 
 int ft_count_commands(t_token *list)
 {
@@ -433,7 +437,7 @@ int ft_count_commands(t_token *list)
     while (list)
     {
         if (list->type == NOT)
-            count++;
+        count++;
         list = list->next;
     }
     return (count);
@@ -445,15 +449,26 @@ int ft_count_pipes(t_token *list)
     while(list)
     {
         if (list->type == PIPE)
-            count_pipes++;
+        count_pipes++;
         list = list->next;
     }
     return (count_pipes);
 }
 
 
+int is_there_pipe(t_token *list)
+{
+    while(list)
+    {
+        if (list->type == PIPE)
+            return (1);
+        list = list->next;
+    }
+    return (0);
+}
 
-void count(t_token *list)
+
+void print_count(t_token *list)
 {
     int count_commands = ft_count_commands(list);
     int count_pipes = ft_count_pipes(list);
@@ -513,34 +528,41 @@ void ft_execute_cmd(t_token *list, char **envp)
 }
 
 
-int is_there_pipe(t_token *list)
+
+// lets suppose in minishell we have a command like this ls -l | grep hello | wc -c
+// parsed into a linked list like this : first node (ls -l) second(|) third(grep hello) fourth(|) fifth(wc -l)
+// what is the schema or the road map to follow to execute this piped commands
+
+
+// void execute_piped_command(t_token *list)
+// {
+//     int pipefd[2];
+//     pipe(pipefd);
+//     dup2(pipefd[1], STDOUT_FILENO);
+//     close(pipefd[0]);
+// }
+
+
+void ft_general_exec(t_token *list, char **envp)
 {
-    while(list)
-    {
-        if (list->type == PIPE)
-            return (1);
-        list = list->next;
-    }
-    return (0);
-}
-
-
-
-void ft_general_exec(t_token *list,char **envp)
-{
-    int commands = ft_count_commands(list);
-    printf("number of commands are %d \n",commands);
+    print_count(list);
     // split_args_from_cmd(list);
     arahna(list);
-    split_args_from_cmd(list);
     // get_node_args(list);
     // count(list);
+
+    split_args_from_cmd(list);
     arahna(list);
     exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
     else
         ft_execute_cmd(list,envp);
+}
+
+void ft_final_execution(t_token *list,char **evnp)
+{
+    ft_general_exec(list,evnp);
 }
 
 
@@ -611,16 +633,7 @@ int main(int ac, char **av, char **envp)
             // ft_print_token(tokens);
         // }
         if (tokens != NULL)
-            ft_general_exec(tokens,envp);
-
-
-
-
-        // t_redir     *red = tokens->rederiction;
-        // ft_print_redirection(red);
-        // if (!tokens->rederiction->next->file)
-        //     printf ("NULL\n");
-        //printf ("the file is %s\n", tokens->rederiction->next->file);
+            ft_final_execution(tokens,envp);
     }
     return (0);
 }
