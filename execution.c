@@ -280,7 +280,7 @@ void ft_add_front(t_pipelist **head, t_pipelist *new)
 t_pipelist *ft_last_node(t_pipelist *head)
 {
     if (!head)
-        return (NULL);
+        return (NULL);      
     while (head->next)
         head = head->next;
     return (head);
@@ -595,8 +595,9 @@ void arahna2(t_pipelist *current)
     while (current)
     {
         printf("piepcmd is %s \n",current->value);
-        current->next;
+        current = current->next;
     }
+    printf("------end of pipelist-----");
 }
 void ft_execution(t_token *list, char **envp)
 {
@@ -619,7 +620,7 @@ void ft_execution(t_token *list, char **envp)
         current = current->next;
     }
 
-    arahna(current);
+    arahna(list);
     arahna2(pipecmd);
     // split_args_from_cmd(list);
     // arahna(list);
