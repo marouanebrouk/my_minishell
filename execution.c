@@ -279,6 +279,8 @@ void ft_add_front(t_pipelist **head, t_pipelist *new)
 
 t_pipelist *ft_last_node(t_pipelist *head)
 {
+    if (!head)
+        return (NULL);
     while (head->next)
         head = head->next;
     return (head);
@@ -577,27 +579,48 @@ void ft_execute_cmd(t_token *list, char **envp)
 //     close(pipefd[0]);
 // }
 
+void arahna(t_token *list)
+{
+    int i = 0;
+    while (list)
+    {
+        printf("token is [%s]  type : [%d] \n",list->value,list->type);
+        list = list->next;
+    }
+    printf("-----end of list-----\n");
+}
 
+void arahna2(t_pipelist *current)
+{
+    while (current)
+    {
+        printf("piepcmd is %s \n",current->value);
+        current->next;
+    }
+}
 void ft_execution(t_token *list, char **envp)
 {
+    t_token *current = list;
     print_count(list);
     int n_commands = ft_count_commands(list);
     int npipe = ft_count_pipes(list);
     // int pipefds[n_commands - 1][2];
     // if (npipe)
     //     pipe(pipefds[1]);
-    t_pipelist *cmds = NULL;
-    while (list)
+    t_pipelist *head = NULL;
+    t_pipelist *pipecmd = NULL;
+    while (current)
     {
-        if (list && list->type == NOT)
+        if (current && current->type == NOT)
         {
-            cmds = ft_new(list->value);
-            ft_add_back(&cmds,list);
+            pipecmd = ft_new(current->value);
+            ft_add_back(&head,pipecmd);
         }
-        list = list->next;
+        current = current->next;
     }
 
-    arahna(list);
+    arahna(current);
+    arahna2(pipecmd);
     // split_args_from_cmd(list);
     // arahna(list);
     exit(1);
@@ -616,16 +639,7 @@ void ft_final_execution(t_token *list,char **evnp)
 
 
 
-void arahna(t_token *list)
-{
-    int i = 0;
-    while (list)
-    {
-        printf("token is [%s]  type : [%d] \n",list->value,list->type);
-        list = list->next;
-    }
-    printf("-----end of list-----\n");
-}
+
 
 // "here i print the node arguments after spliting them"
 // void get_node_args(t_token *list)
