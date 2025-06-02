@@ -597,7 +597,7 @@ void arahna2(t_pipelist *current)
         printf("piepcmd is %s \n",current->value);
         current = current->next;
     }
-    printf("------end of pipelist-----");
+    printf("------end of pipelist-----\n");
 }
 void ft_execution(t_token *list, char **envp)
 {
@@ -619,12 +619,12 @@ void ft_execution(t_token *list, char **envp)
         }
         current = current->next;
     }
-
-    arahna(list);
-    arahna2(pipecmd);
-    // split_args_from_cmd(list);
+    
     // arahna(list);
-    exit(1);
+    arahna2(head);
+    split_args_from_cmd(list);
+    // arahna(list);
+    // exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
     else
