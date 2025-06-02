@@ -269,6 +269,45 @@ void ft_print_token(t_token *token)
 
 // EXECUTION PHASE
 
+void ft_add_front(t_pipelist **head, t_pipelist *new)
+{
+    if (!*head)
+        *head = new;
+    new->next = *head;
+    *head = new;
+}
+
+t_pipelist *ft_last_node(t_pipelist *head)
+{
+    while (head->next)
+        head = head->next;
+    return (head);
+}
+
+void ft_add_back(t_pipelist **head, t_pipelist* new)
+{
+    t_pipelist *last;
+    last = ft_last_node((*head));
+
+    if(!(*head))
+        (*head) = new;
+    else
+        last->next = new;
+}
+
+t_pipelist *ft_new(char *value)
+{
+    t_pipelist *new = malloc(sizeof(t_pipelist));
+    if (!new)
+        return (NULL);
+    new->value = value;
+    new->arguments = NULL;
+    new->next = NULL;
+    return (new);
+}
+
+
+
 
 
 
@@ -544,14 +583,23 @@ void ft_execution(t_token *list, char **envp)
     print_count(list);
     int n_commands = ft_count_commands(list);
     int npipe = ft_count_pipes(list);
-    int pipefds[n_commands - 1][2];
-    if (npipe)
-        pipe(pipefds[1]);
-
+    // int pipefds[n_commands - 1][2];
+    // if (npipe)
+    //     pipe(pipefds[1]);
+    t_pipelist *cmds = NULL;
+    while (list)
+    {
+        if (list && list->type == NOT)
+        {
+            cmds = ft_new(list->value);
+            ft_add_back(&cmds,list);
+        }
+        list = list->next;
+    }
 
     arahna(list);
     // split_args_from_cmd(list);
-    arahna(list);
+    // arahna(list);
     exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);

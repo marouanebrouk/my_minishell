@@ -72,6 +72,15 @@ int is_sep(char c);
 
 // EXECUTION
 
+
+
+typedef struct s_pipelist
+{
+    char *value;
+    char **arguments;
+    struct s_pipelsit *next;
+} t_pipelist;
+
 int ft_strcmp(char *s1, char *s2);
 int is_builtin(char *cmd);
 void	ft_handle_builtins(t_token *list,char **envp);
