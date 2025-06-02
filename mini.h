@@ -78,7 +78,7 @@ typedef struct s_pipelist
 {
     char *value;
     char **arguments;
-    struct s_pipelsit *next;
+    struct s_pipelist *next;
 } t_pipelist;
 
 int ft_strcmp(char *s1, char *s2);
