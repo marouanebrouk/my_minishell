@@ -640,6 +640,12 @@ void pipelist_arguments_print(t_pipelist *list)
 }
 
 
+void call_pipe_engine()
+{
+
+}
+
+
 void ft_execution(t_token *list, char **envp)
 {
     print_count(list);
@@ -650,13 +656,14 @@ void ft_execution(t_token *list, char **envp)
     //     pipe(pipefds[1]);
 
     arahna(list);
-    split_args_from_cmd(list);
+    // split_args_from_cmd(list);
     get_node_args(list);
     t_pipelist *pipelist = create_pipe_list(list);
     arahna2(pipelist);
     split_argsfor_pipes(pipelist);
-    arahna2(pipelist);
     pipelist_arguments_print(pipelist);
+    if (npipe)
+        call_pipe_engine();
     exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
