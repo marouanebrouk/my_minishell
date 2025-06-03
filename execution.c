@@ -463,7 +463,7 @@ void split_args_from_cmd(t_token *token)
     printf("------------argument split happened----------------\n");
 }
 
-void split_argsfor_pipes(t_pipelist *pipenode)
+void split_argsfor_pipe_list(t_pipelist *pipenode)
 {
     int i = 0;
     while (pipenode)
@@ -660,7 +660,7 @@ void ft_execution(t_token *list, char **envp)
     get_node_args(list);
     t_pipelist *pipelist = create_pipe_list(list);
     arahna2(pipelist);
-    split_argsfor_pipes(pipelist);
+    split_argsfor_pipe_list(pipelist);
     pipelist_arguments_print(pipelist);
     if (npipe)
         call_pipe_engine();
