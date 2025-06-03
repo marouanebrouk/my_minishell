@@ -551,6 +551,28 @@ char *ft_get_path_cmd(char *value, char **envp)
     return (paths[i]);
 }
 
+
+void ft_execute_pipe_cmd(t_pipelist *pipelist, char **envp)
+{
+        int pid = 0;
+        char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+        pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+        else if (pid == 0)
+        {  
+            execve(path_to_exec, pipelist->arguments, envp);
+            printf("command not found : %s \n",pipelist->arguments[0]);
+            exit(1);
+        }
+        else
+            wait(NULL);
+}
+
+
 void ft_execute_cmd(t_token *list, char **envp)
 {
         int pid = 0;
@@ -640,9 +662,15 @@ void pipelist_arguments_print(t_pipelist *list)
 }
 
 
-void call_pipe_engine()
+void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
-
+    // for now it will only execute one cmd and redirect to next one
+    while (pipelist)
+    {
+        ft_execute_pipe_cmd(pipelist,envp);
+        ft_pipe();
+        pipelist = pipelist->next;
+    }
 }
 
 
@@ -651,10 +679,6 @@ void ft_execution(t_token *list, char **envp)
     print_count(list);
     int n_commands = ft_count_commands(list);
     int npipe = ft_count_pipes(list);
-    // int pipefds[n_commands - 1][2];
-    // if (npipe)
-    //     pipe(pipefds[1]);
-
     arahna(list);
     // split_args_from_cmd(list);
     get_node_args(list);
