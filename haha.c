@@ -12,7 +12,6 @@ void *ft_ft(int type, int size, ...)
     void *ptr;
     ptr = malloc(type * size);
     
-
     int i = 0;
     while (i < size)
     {

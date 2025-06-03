@@ -463,6 +463,21 @@ void split_args_from_cmd(t_token *token)
     printf("------------argument split happened----------------\n");
 }
 
+void split_argsfor_pipes(t_pipelist *pipenode)
+{
+    int i = 0;
+    while (pipenode)
+    {
+        if(pipenode->value)
+        {
+            pipenode->arguments = ft_split(pipenode->value,32);
+            pipenode->value = pipenode->arguments[0];
+        }
+        pipenode = pipenode->next;
+    }
+    printf("------------pipe argument split happened----------------\n");
+}
+
 
 
 t_token *move_to_next_command(t_token *list)
@@ -547,7 +562,7 @@ void ft_execute_cmd(t_token *list, char **envp)
             exit(1);
         }
         else if (pid == 0)
-        {
+        {  
             execve(path_to_exec, list->argument, envp);
             printf("command not found : %s \n",list->argument[0]);
             exit(1);
@@ -561,15 +576,6 @@ void ft_execute_cmd(t_token *list, char **envp)
 // lets suppose in minishell we have a command like this ls -l | grep hello | wc -c
 // parsed into a linked list like this : first node (ls -l) second(|) third(grep hello) fourth(|) fifth(wc -l)
 // what is the schema or the road map to follow to execute this piped commands
-
-
-
-
-
-
-
-
-
 
 // void execute_piped_command(t_token *list)
 // {
@@ -599,37 +605,65 @@ void arahna2(t_pipelist *current)
     }
     printf("------end of pipelist-----\n");
 }
+
+
+t_pipelist *create_pipe_list(t_token *list)
+{
+    t_token *list2 = list;
+    t_pipelist *head = NULL;
+    t_pipelist *pipecmd = NULL;
+    while (list2)
+    {
+        if (list2 && list2->type == NOT)
+        {
+            pipecmd = ft_new(list2->value);
+            ft_add_back(&head,pipecmd);
+        }
+        list2 = list2->next;
+    }
+    return (head);
+}
+void pipelist_arguments_print(t_pipelist *list)
+{
+    int i = 0;
+    while (list)
+    {
+        printf("node value is %s \n",list->value);
+        while (list->arguments[i])
+        {
+            printf("argument %d is %s \n",i,list->arguments[i]);
+            i++;
+        }
+        list = list->next;
+        i = 0;
+    }
+}
+
+
 void ft_execution(t_token *list, char **envp)
 {
-    t_token *current = list;
     print_count(list);
     int n_commands = ft_count_commands(list);
     int npipe = ft_count_pipes(list);
     // int pipefds[n_commands - 1][2];
     // if (npipe)
     //     pipe(pipefds[1]);
-    t_pipelist *head = NULL;
-    t_pipelist *pipecmd = NULL;
-    while (current)
-    {
-        if (current && current->type == NOT)
-        {
-            pipecmd = ft_new(current->value);
-            ft_add_back(&head,pipecmd);
-        }
-        current = current->next;
-    }
-    
-    // arahna(list);
-    arahna2(head);
+
+    arahna(list);
     split_args_from_cmd(list);
-    // arahna(list);
-    // exit(1);
+    get_node_args(list);
+    t_pipelist *pipelist = create_pipe_list(list);
+    arahna2(pipelist);
+    split_argsfor_pipes(pipelist);
+    arahna2(pipelist);
+    pipelist_arguments_print(pipelist);
+    exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
     else
         ft_execute_cmd(list,envp);
 }
+
 
 void ft_final_execution(t_token *list,char **evnp)
 {
@@ -643,22 +677,22 @@ void ft_final_execution(t_token *list,char **evnp)
 
 
 // "here i print the node arguments after spliting them"
-// void get_node_args(t_token *list)
-// {
-//     int i = 0;
-//     printf("Arguments of each node ...\n");
-//     while (list)
-//     {
-//         i = 0;
-//         printf("value is %s \n",list->value);
-//         while (list->argument && list->argument[i])
-//         {
-//             printf("argument %d %s \n",i,list->argument[i]);
-//             i++;
-//         }
-//         list = list->next;
-//     }
-// }
+void get_node_args(t_token *list)
+{
+    int i = 0;
+    printf("Arguments of each node ...\n");
+    while (list)
+    {
+        i = 0;
+        printf("value is %s \n",list->value);
+        while (list->argument && list->argument[i])
+        {
+            printf("argument %d %s \n",i,list->argument[i]);
+            i++;
+        }
+        list = list->next;
+    }
+}
 
 
 
