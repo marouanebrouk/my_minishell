@@ -662,6 +662,10 @@ void pipelist_arguments_print(t_pipelist *list)
 }
 
 
+void ft_pipe()
+{
+
+}
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
     // for now it will only execute one cmd and redirect to next one
@@ -676,16 +680,23 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
 
 void ft_execution(t_token *list, char **envp)
 {
+    // counts the pipes and the commands
     print_count(list);
     int n_commands = ft_count_commands(list);
     int npipe = ft_count_pipes(list);
+    
+    //print the commands of the token list
     arahna(list);
-    // split_args_from_cmd(list);
     get_node_args(list);
+    // split_args_from_cmd(list);
     t_pipelist *pipelist = create_pipe_list(list);
+    
     arahna2(pipelist);
+    
     split_argsfor_pipe_list(pipelist);
     pipelist_arguments_print(pipelist);
+
+
     if (npipe)
         call_pipe_engine();
     exit(1);
