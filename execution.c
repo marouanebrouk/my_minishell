@@ -272,7 +272,10 @@ void ft_print_token(t_token *token)
 void ft_add_front(t_pipelist **head, t_pipelist *new)
 {
     if (!*head)
+    {
         *head = new;
+        return;
+    }
     new->next = *head;
     *head = new;
 }
@@ -292,7 +295,10 @@ void ft_add_back(t_pipelist **head, t_pipelist* new)
     last = ft_last_node((*head));
 
     if(!(*head))
+    {
         (*head) = new;
+        return;
+    }
     else
         last->next = new;
 }
@@ -552,10 +558,12 @@ char *ft_get_path_cmd(char *value, char **envp)
 }
 
 
-void ft_execute_pipe_cmd(t_pipelist *pipelist, char **envp)
+void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp)
 {
         int pid = 0;
         char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+        int pipefds[2];
+        pipe(pipefds);
         pid = fork();
         if (pid == -1)
         {
@@ -563,7 +571,10 @@ void ft_execute_pipe_cmd(t_pipelist *pipelist, char **envp)
             exit(1);
         }
         else if (pid == 0)
-        {  
+        {
+            close(pipefds[0]);
+            dup2(pipefds[1],STDOUT_FILENO);
+            close(pipefds[1]);
             execve(path_to_exec, pipelist->arguments, envp);
             printf("command not found : %s \n",pipelist->arguments[0]);
             exit(1);
@@ -669,7 +680,7 @@ void ft_pipe()
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
     // for now it will only execute one cmd and redirect to next one
-    while (pipelist)
+    while (pipelist && pipelist->next)
     {
         ft_execute_pipe_cmd(pipelist,envp);
         ft_pipe();
