@@ -673,17 +673,12 @@ void pipelist_arguments_print(t_pipelist *list)
 }
 
 
-void ft_pipe()
-{
-
-}
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
     // for now it will only execute one cmd and redirect to next one
     while (pipelist && pipelist->next)
     {
-        ft_execute_pipe_cmd(pipelist,envp);
-        ft_pipe();
+        ft_exec_cmd_and_create_pipe(pipelist,envp);
         pipelist = pipelist->next;
     }
 }
