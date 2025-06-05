@@ -1,11 +1,6 @@
 #include "mini.h"
 
-typedef struct s_pipe
-{
-    char *value;
-    char **argument;
-    struct s_pipe *next;
-}t_pipe;
+
 
 
 t_redir *new_redirection(char *file, e_token token)
@@ -274,6 +269,53 @@ void ft_print_token(t_token *token)
 
 // EXECUTION PHASE
 
+void ft_add_front(t_pipelist **head, t_pipelist *new)
+{
+    if (!*head)
+    {
+        *head = new;
+        return;
+    }
+    new->next = *head;
+    *head = new;
+}
+
+t_pipelist *ft_last_node(t_pipelist *head)
+{
+    if (!head)
+        return (NULL);      
+    while (head->next)
+        head = head->next;
+    return (head);
+}
+
+void ft_add_back(t_pipelist **head, t_pipelist* new)
+{
+    t_pipelist *last;
+    last = ft_last_node((*head));
+
+    if(!(*head))
+    {
+        (*head) = new;
+        return;
+    }
+    else
+        last->next = new;
+}
+
+t_pipelist *ft_new(char *value)
+{
+    t_pipelist *new = malloc(sizeof(t_pipelist));
+    if (!new)
+        return (NULL);
+    new->value = value;
+    new->arguments = NULL;
+    new->next = NULL;
+    return (new);
+}
+
+
+
 
 
 
@@ -294,7 +336,7 @@ int is_builtin(char *cmd)
         return (1);
     return(0);
 }
-//echo functiuon
+
 
 int	echo_has_n_option(char *arg)
 {
@@ -314,31 +356,65 @@ int	echo_has_n_option(char *arg)
 
 
 
+// int	ft_echo(t_token *list)
+// {
+//     int	i = 1;
+//     int	newline = 1;
+
+//     while (list->argument && list->argument[i] && echo_has_n_option(list->argument[i]))
+//     {
+//         newline = 0;
+//         i++;
+//     }
+//     while (list->argument[i])
+//     {
+//         printf("%s", list->argument[i]);
+//         if (list->argument[i + 1])
+//             printf(" ");
+//         i++;
+//     }
+//     if (newline)
+//         printf("\n");
+//     return (0);
+// }
+
+
 int	ft_echo(t_token *list)
 {
-    int	i = 1;
-    int	newline = 1;
+	int	i = 1;
+	int	newline = 1;
 
-    while (list->argument && list->argument[i] && echo_has_n_option(list->argument[i]))
-    {
-        newline = 0;
-        i++;
-    }
-    while (list->argument[i])
-    {
-        printf("%s", list->argument[i]);
-        if (list->argument[i + 1])
-            printf(" ");
-        i++;
-    }
-    if (newline)
-        printf("\n");
-    return (0);
+	while (list->argument && list->argument[i] && echo_has_n_option(list->argument[i]))
+	{
+		newline = 0;
+		i++;
+	}
+	int j = 0;
+	while (list->argument[i])
+	{
+		j = 0;
+		while (list->argument[i][j])
+		{
+			if (list->argument[i][j] == '"')
+				j++;
+			else
+			{
+				printf("%c", list->argument[i][j]);
+				j++;
+			}
+		}
+		if (list->argument[i + 1])
+			printf(" ");
+		i++;
+	}
+	if (newline)
+		printf("\n");
+	return (0);
 }
 
 
-// end echo
-// env
+
+
 void ft_env(t_token *list, char **envp)
 {
     (void)envp;
@@ -347,40 +423,37 @@ void ft_env(t_token *list, char **envp)
     while(environ && environ[++i])
     printf("%s \n",environ[i]);
 }
-// end env
 
-//builtin function
 
 void	ft_handle_builtins(t_token *list, char **envp)
 {
     if (!ft_strcmp(list->value, "cd"))
     {
         if (!list->argument[1])
-        write(2, "cd: missing argument\n",21);
+            write(2, "cd: missing argument\n",21);
         else if (chdir(list->argument[1]) != 0)
-        perror("cd");
+            perror("cd");
     }
     else if (!ft_strcmp(list->value, "pwd"))
     {
         char cwd[1024];
         if (getcwd(cwd, sizeof(cwd)) != NULL)
-        printf("%s\n", cwd);
+            printf("%s\n", cwd);
         else
-        perror("pwd");
+            perror("pwd");
     }
     else if (!ft_strcmp(list->value, "echo"))
-    ft_echo(list);
+        ft_echo(list);
     else if (!ft_strcmp(list->value, "exit"))
     {
         printf("exit\n");
         exit(0);
     }
     else if (!ft_strcmp(list->value,"env"))
-    ft_env(list,envp);
+        ft_env(list,envp);
 }
-//end builtin function
 
-// split args from cmd
+
 void split_args_from_cmd(t_token *token)
 {
     int i = 0;
@@ -393,9 +466,32 @@ void split_args_from_cmd(t_token *token)
         }
         token = token->next;
     }
+    printf("------------argument split happened----------------\n");
 }
-// end split
 
+void split_argsfor_pipe_list(t_pipelist *pipenode)
+{
+    int i = 0;
+    while (pipenode)
+    {
+        if(pipenode->value)
+        {
+            pipenode->arguments = ft_split(pipenode->value,32);
+            pipenode->value = pipenode->arguments[0];
+        }
+        pipenode = pipenode->next;
+    }
+    printf("------------pipe argument split happened----------------\n");
+}
+
+
+
+t_token *move_to_next_command(t_token *list)
+{
+    if (list->type != PIPE && list->next->type == NOT)
+        list = list->next;
+    return (list);
+}
 
 int ft_count_commands(t_token *list)
 {
@@ -403,7 +499,7 @@ int ft_count_commands(t_token *list)
     while (list)
     {
         if (list->type == NOT)
-            count++;
+        count++;
         list = list->next;
     }
     return (count);
@@ -415,106 +511,14 @@ int ft_count_pipes(t_token *list)
     while(list)
     {
         if (list->type == PIPE)
-            count_pipes++;
+        count_pipes++;
         list = list->next;
     }
     return (count_pipes);
 }
 
 
-
-
-
-
-t_token *get_nth_command(t_token *list, int n)
-{
-    int count = 0;
-    while (list)
-    {
-        if (list->type == NOT)
-        {
-            if (count == n)
-                return (list);
-            count++;
-        }
-        list = list->next;
-    }
-    return (NULL);
-}
-
-
-void ft_exec_pipeline(t_token *list, char **envp)
-{
-    int i = 0;
-    int number_commands = ft_count_commands(list);
-    int pipes[2 * (number_commands - 1)];
-    int pid;
-    int j;
-
-    while (i < number_commands - 1)
-    {
-        if (pipe(pipes + i * 2) == -1)
-        {
-            perror("pipe");
-            exit(1);
-        }    
-        i++;
-    }    
-
-    i = 0;
-    while (i < number_commands)
-    {
-        pid = fork();
-        if (pid == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-        if (pid == 0)
-        {
-            // setup stdin
-            // if (i != 0)
-            dup2(pipes[(i - 1) * 2], 0);
-            // setup stdout    
-            if (i != number_commands - 1)
-                dup2(pipes[i * 2 + 1], 1);
-
-            // close all pipe ends    
-            j = 0;
-            while (j < 2 * (number_commands - 1))
-                close(pipes[j++]);
-
-            // get command and exec    
-            t_token *cmd = get_nth_command(list, i);
-            split_args_from_cmd(cmd);
-            char *path = ft_get_path_cmd(cmd->value, envp);
-            execve(path, cmd->argument, envp);
-            perror("execve");
-            exit(1);
-        }    
-        i++;
-    }    
-
-    // parent closes all pipe ends
-    j = 0;
-    while (j < 2 * (number_commands - 1))
-        close(pipes[j++]);
-
-    // wait for all children    
-    i = 0;
-    while (i < number_commands)
-    {
-        wait(NULL);
-        i++;
-    }    
-}    
-
-
-
-
-
-
-void count(t_token *list)
+void print_count(t_token *list)
 {
     int count_commands = ft_count_commands(list);
     int count_pipes = ft_count_pipes(list);
@@ -553,6 +557,33 @@ char *ft_get_path_cmd(char *value, char **envp)
     return (paths[i]);
 }
 
+
+void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp)
+{
+        int pid = 0;
+        char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+        int pipefds[2];
+        pipe(pipefds);
+        pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+        else if (pid == 0)
+        {
+            close(pipefds[0]);
+            dup2(pipefds[1],STDOUT_FILENO);
+            close(pipefds[1]);
+            execve(path_to_exec, pipelist->arguments, envp);
+            printf("command not found : %s \n",pipelist->arguments[0]);
+            exit(1);
+        }
+        else
+            wait(NULL);
+}
+
+
 void ft_execute_cmd(t_token *list, char **envp)
 {
         int pid = 0;
@@ -564,64 +595,28 @@ void ft_execute_cmd(t_token *list, char **envp)
             exit(1);
         }
         else if (pid == 0)
-        {
+        {  
             execve(path_to_exec, list->argument, envp);
             printf("command not found : %s \n",list->argument[0]);
             exit(1);
         }
-        wait(NULL);
-}
-
-
-int is_there_pipe(t_token *list)
-{
-    while(list)
-    {
-        if (list->type == PIPE)
-            return (1);
-        list = list->next;
-    }
-    return (0);
-}
-
-
-
-// void ft_general_exec(t_token *list,char **envp)
-// {
-//     split_args_from_cmd(list);
-//     // arahna(list);
-//     // split_args_from_cmd(list);
-//     // get_node_args(list);
-//     // count(list);
-//     // exit(1);
-//     // arahna(list);
-//     if(is_builtin(list->value))
-//         ft_handle_builtins(list,envp);
-//     else
-//         ft_execute_cmd(list,envp);
-// }
-void ft_general_exec(t_token *list, char **envp)
-{
-    split_args_from_cmd(list);
-
-    if (!is_there_pipe(list))
-    {
-        if (is_builtin(list->value))
-            ft_handle_builtins(list, envp);
         else
-            ft_execute_cmd(list, envp);
-    }
-    else
-        ft_exec_pipeline(list, envp);
+            wait(NULL);
 }
 
 
 
+// lets suppose in minishell we have a command like this ls -l | grep hello | wc -c
+// parsed into a linked list like this : first node (ls -l) second(|) third(grep hello) fourth(|) fifth(wc -l)
+// what is the schema or the road map to follow to execute this piped commands
 
-
-
-
-
+// void execute_piped_command(t_token *list)
+// {
+//     int pipefd[2];
+//     pipe(pipefd);
+//     dup2(pipefd[1], STDOUT_FILENO);
+//     close(pipefd[0]);
+// }
 
 void arahna(t_token *list)
 {
@@ -634,23 +629,118 @@ void arahna(t_token *list)
     printf("-----end of list-----\n");
 }
 
+void arahna2(t_pipelist *current)
+{
+    while (current)
+    {
+        printf("piepcmd is %s \n",current->value);
+        current = current->next;
+    }
+    printf("------end of pipelist-----\n");
+}
+
+
+t_pipelist *create_pipe_list(t_token *list)
+{
+    t_token *list2 = list;
+    t_pipelist *head = NULL;
+    t_pipelist *pipecmd = NULL;
+    while (list2)
+    {
+        if (list2 && list2->type == NOT)
+        {
+            pipecmd = ft_new(list2->value);
+            ft_add_back(&head,pipecmd);
+        }
+        list2 = list2->next;
+    }
+    return (head);
+}
+void pipelist_arguments_print(t_pipelist *list)
+{
+    int i = 0;
+    while (list)
+    {
+        printf("node value is %s \n",list->value);
+        while (list->arguments[i])
+        {
+            printf("argument %d is %s \n",i,list->arguments[i]);
+            i++;
+        }
+        list = list->next;
+        i = 0;
+    }
+}
+
+
+void call_pipe_engine(t_pipelist *pipelist, char **envp)
+{
+    // for now it will only execute one cmd and redirect to next one
+    while (pipelist && pipelist->next)
+    {
+        ft_exec_cmd_and_create_pipe(pipelist,envp);
+        pipelist = pipelist->next;
+    }
+}
+
+
+void ft_execution(t_token *list, char **envp)
+{
+    // counts the pipes and the commands
+    print_count(list);
+    int n_commands = ft_count_commands(list);
+    int npipe = ft_count_pipes(list);
+    
+    //print the commands of the token list
+    arahna(list);
+    get_node_args(list);
+    // split_args_from_cmd(list);
+    t_pipelist *pipelist = create_pipe_list(list);
+    
+    arahna2(pipelist);
+    
+    split_argsfor_pipe_list(pipelist);
+    pipelist_arguments_print(pipelist);
+
+
+    if (npipe)
+        call_pipe_engine();
+    exit(1);
+    if(is_builtin(list->value))
+        ft_handle_builtins(list,envp);
+    else
+        ft_execute_cmd(list,envp);
+}
+
+
+void ft_final_execution(t_token *list,char **evnp)
+{
+    ft_execution(list, evnp);
+}
+
+
+
+
+
+
+
 // "here i print the node arguments after spliting them"
-// void get_node_args(t_token *list)
-// {
-//     int i = 0;
-//     printf("Arguments of each node ...\n");
-//     while (list)
-//     {
-//         i = 0;
-//         printf("value is %s \n",list->value);
-//         while (list->argument && list->argument[i])
-//         {
-//             printf("argument %d %s \n",i,list->argument[i]);
-//             i++;
-//         }
-//         list = list->next;
-//     }
-// }
+void get_node_args(t_token *list)
+{
+    int i = 0;
+    printf("Arguments of each node ...\n");
+    while (list)
+    {
+        i = 0;
+        printf("value is %s \n",list->value);
+        while (list->argument && list->argument[i])
+        {
+            printf("argument %d %s \n",i,list->argument[i]);
+            i++;
+        }
+        list = list->next;
+    }
+}
 
 
 
@@ -687,16 +777,7 @@ int main(int ac, char **av, char **envp)
             // ft_print_token(tokens);
         // }
         if (tokens != NULL)
-            ft_general_exec(tokens,envp);
-
-
-
-
-        // t_redir     *red = tokens->rederiction;
-        // ft_print_redirection(red);
-        // if (!tokens->rederiction->next->file)
-        //     printf ("NULL\n");
-        //printf ("the file is %s\n", tokens->rederiction->next->file);
+            ft_final_execution(tokens,envp);
     }
     return (0);
 }

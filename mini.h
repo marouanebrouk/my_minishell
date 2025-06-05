@@ -16,13 +16,13 @@
 
 typedef     enum  s_token
 {
-    PIPE,
-    IN,
-    OUT,
-    APPEND,
-    HERDOK,
-    NOT, 
-    END
+    PIPE, //0
+    IN,//1
+    OUT,//2
+    APPEND,//3
+    HERDOK,//4
+    NOT, //5
+    END//6
 }e_token;
 
 typedef struct      s_redirection
@@ -72,8 +72,16 @@ int is_sep(char c);
 
 // EXECUTION
 
+
+
+typedef struct s_pipelist
+{
+    char *value;
+    char **arguments;
+    struct s_pipelist *next;
+} t_pipelist;
+
 int ft_strcmp(char *s1, char *s2);
-// int	ft_strncmp(char	*s1,  char	*s2);
 int is_builtin(char *cmd);
 void	ft_handle_builtins(t_token *list,char **envp);
 void split_args_from_cmd(t_token *token);
