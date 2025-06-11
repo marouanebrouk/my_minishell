@@ -583,18 +583,6 @@ void ft_execute_cmd(t_token *list, char **envp)
 
 
 
-// lets suppose in minishell we have a command like this ls -l | grep hello | wc -c
-// parsed into a linked list like this : first node (ls -l) second(|) third(grep hello) fourth(|) fifth(wc -l)
-// what is the schema or the road map to follow to execute this piped commands
-
-// void execute_piped_command(t_token *list)
-// {
-//     int pipefd[2];
-//     pipe(pipefd);
-//     dup2(pipefd[1], STDOUT_FILENO);
-//     close(pipefd[0]);
-// }
-
 void arahna(t_token *list)
 { //qtestest
     int i = 0;
@@ -700,6 +688,21 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
 
 
 // ls -l | grep hello | wc -l
+// -- >  ls -l  grep hello   wc -l
+/*
+ls
+ls
+-l
+
+grep 
+grep
+hello
+
+wc
+wc
+-l
+
+*/
 
 
 void ft_execution(t_token *list, char **envp)
@@ -707,16 +710,16 @@ void ft_execution(t_token *list, char **envp)
     t_pipelist *pipelist;
 
     pipelist = NULL;
-    // counts  pipes and commands
-    print_count(list);
-    pipelist = create_pipe_list(list);
-    
-    arahna2(pipelist);
-    split_argsfor_pipe_list(pipelist);
-    // print_pipelist_arguments(pipelist);
-    
-    // if (npipe)
-        // call_pipe_engine();
+    if (ft_count_pipes(list) > 0)
+    {
+        // counts  pipes and commands
+        print_count(list);
+        pipelist = create_pipe_list(list);
+        // arahna2(pipelist);
+        split_argsfor_pipe_list(pipelist);
+        // print_pipelist_arguments(pipelist);
+        call_pipe_engine(pipelist, envp);
+    }
 }
 
 
