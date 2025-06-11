@@ -1,0 +1,103 @@
+# ─── Builtins ──────────────────────────────────────────────
+
+# cd
+cd /
+cd ..
+cd /tmp
+cd /doesnotexist
+cd
+
+# pwd
+pwd
+cd /tmp
+pwd
+
+# echo
+echo hello world
+echo "hello     world"
+echo -n "no newline"
+echo -nnnn hello
+echo -n -n hello
+
+# export + env
+export TEST=42
+env | grep TEST
+export TEST2=foo TEST3=bar
+env | grep TEST2
+env | grep TEST3
+
+# unset
+export UNSET_ME=value
+unset UNSET_ME
+env | grep UNSET_ME
+
+# ─── Binary Commands ───────────────────────────────────────
+
+ls
+ls -l
+ls -la /tmp
+echo hello | wc -c
+whoami
+
+# ─── Chained Commands ──────────────────────────────────────
+
+ls -l | wc -l
+cat /etc/passwd | grep root
+
+# ─── Redirects ─────────────────────────────────────────────
+
+echo hello > file1.txt
+cat < file1.txt
+cat < file1.txt > file2.txt
+cat file2.txt
+
+# ─── Quoting and Escaping ─────────────────────────────────
+
+echo "this    is    one    string"
+echo 'single quoted'
+echo "mixed 'quotes' inside"
+echo hello\ world
+
+# ─── Env Variable Expansion ───────────────────────────────
+
+export VAR=hello
+echo $VAR
+echo "$VAR world"
+echo '$VAR should not expand'
+unset VAR
+
+# ─── Error Handling ───────────────────────────────────────
+
+cd /nonexistent
+export =wrong
+echo "unfinished quote
+ls /root
+
+# ─── Advanced Pipelines ───────────────────────────────────
+
+cat /etc/passwd | grep root | wc -l
+env | sort | head -n 5
+
+# ─── Combining Builtins and Binaries ──────────────────────
+
+export FOO=bar && echo $FOO
+cd /tmp && pwd
+cd /tmp && ls -l
+
+# ─── Absolute and Relative Paths ──────────────────────────
+
+/bin/ls
+./a.out
+
+
+
+
+
+
+
+
+
+./your_shell < tests.txt > your_output.txt
+bash < tests.txt > bash_output.txt
+diff your_output.txt bash_output.txt
+

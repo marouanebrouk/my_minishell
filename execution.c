@@ -699,6 +699,8 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
 
 
 
+// ls -l | grep hello | wc -l
+
 
 void ft_execution(t_token *list, char **envp)
 {
@@ -707,33 +709,34 @@ void ft_execution(t_token *list, char **envp)
     pipelist = NULL;
     // counts  pipes and commands
     print_count(list);
-    
-    //print the commands of the t_token list
-    // arahna(list);
-    // get_node_args(list);
-    
-    // split_args_from_cmd(list);
-    arahna(list);
     pipelist = create_pipe_list(list);
     
     arahna2(pipelist);
     split_argsfor_pipe_list(pipelist);
-    print_pipelist_arguments(pipelist);
+    // print_pipelist_arguments(pipelist);
     
     // if (npipe)
         // call_pipe_engine();
-    // exit(1);
-    // if(is_builtin(list->value))
-    //     ft_handle_builtins(list,envp);
-    // else
-    //     ft_execute_cmd(list,envp);
 }
 
 
-void ft_final_execution(t_token *list,char **evnp)
+void ft_final_execution(t_token *list,char **envp)
 {
-    ft_execution(list, evnp);
-    arahna(list);
+    if (ft_count_pipes(list) == 0)
+    {
+        if(is_builtin(list->value))
+        {
+            ft_handle_builtins(list, envp);
+        }
+        else
+        {
+            split_args_from_cmd(list);
+            ft_execute_cmd(list, envp);
+        }
+    }
+    else if (ft_count_pipes(list) > 0 && ft_count_commands(list) > 1)
+        ft_execution(list,envp);
+    // arahna(list);
 }
 
 
