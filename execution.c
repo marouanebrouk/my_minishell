@@ -671,38 +671,17 @@ void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp)
 
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
-    // for now it will only execute one cmd and redirect to next one
-    while (pipelist && pipelist->next)
+    //ls -l | grep hafasdg | wc -l 
+    while (pipelist && pipelist->next->value)
     {
-        // int pipefds[2]; <--- this better to be here
-        //pipe(pipefds); <--- this better to be here.
+        int pipefds[2];
+        pipe(pipefds);
         ft_exec_cmd_and_create_pipe(pipelist,envp);
         pipelist = pipelist->next;
     }
 }
 
-
-
-
-
-
-
-// ls -l | grep hello | wc -l
-// -- >  ls -l  grep hello   wc -l
-/*
-ls
-ls
--l
-
-grep 
-grep
-hello
-
-wc
-wc
--l
-
-*/
+// ls -l | wc -l | grep a.out
 
 
 void ft_execution(t_token *list, char **envp)
@@ -712,8 +691,7 @@ void ft_execution(t_token *list, char **envp)
     pipelist = NULL;
     if (ft_count_pipes(list) > 0)
     {
-        // counts  pipes and commands
-        print_count(list);
+        // print_count(list);
         pipelist = create_pipe_list(list);
         // arahna2(pipelist);
         split_argsfor_pipe_list(pipelist);
@@ -721,6 +699,7 @@ void ft_execution(t_token *list, char **envp)
         call_pipe_engine(pipelist, envp);
     }
 }
+
 
 
 void ft_final_execution(t_token *list,char **envp)
@@ -739,7 +718,6 @@ void ft_final_execution(t_token *list,char **envp)
     }
     else if (ft_count_pipes(list) > 0 && ft_count_commands(list) > 1)
         ft_execution(list,envp);
-    // arahna(list);
 }
 
 
