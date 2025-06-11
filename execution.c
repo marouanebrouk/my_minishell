@@ -669,9 +669,9 @@ void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp)
         }
         else if (pid == 0)
         {
-            close(pipefds[0]);
-            dup2(pipefds[1],STDOUT_FILENO); // to pipe
-            close(pipefds[1]);
+            // close(pipefds[0]);
+            // dup2(pipefds[1],STDOUT_FILENO); // to pipe
+            // close(pipefds[1]);
             // redi
             execve(path_to_exec, pipelist->arguments, envp);
             printf("command not found : %s \n",pipelist->arguments[0]);
@@ -712,27 +712,28 @@ void ft_execution(t_token *list, char **envp)
     // arahna(list);
     // get_node_args(list);
     
-    split_args_from_cmd(list);
+    // split_args_from_cmd(list);
     arahna(list);
     pipelist = create_pipe_list(list);
     
     arahna2(pipelist);
     split_argsfor_pipe_list(pipelist);
-    // print_pipelist_arguments(pipelist);
+    print_pipelist_arguments(pipelist);
     
     // if (npipe)
         // call_pipe_engine();
-    exit(1);
-    if(is_builtin(list->value))
-        ft_handle_builtins(list,envp);
-    else
-        ft_execute_cmd(list,envp);
+    // exit(1);
+    // if(is_builtin(list->value))
+    //     ft_handle_builtins(list,envp);
+    // else
+    //     ft_execute_cmd(list,envp);
 }
 
 
 void ft_final_execution(t_token *list,char **evnp)
 {
     ft_execution(list, evnp);
+    arahna(list);
 }
 
 
