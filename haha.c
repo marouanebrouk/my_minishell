@@ -24,18 +24,35 @@ void *ft_ft(int type, int size, ...)
     va_end(args);
     return (ptr);
 }
-
+#include <sys/wait.h>
 int main()
 {
-    // void *ptr2 = ft_ft(1,3,'c','z','d');
-    void *ptr2 = ft_ft(4,6,521,12,312,456,4986,26);
-    int i = 0;
+    // // void *ptr2 = ft_ft(1,3,'c','z','d');
+    // void *ptr2 = ft_ft(4,6,521,12,312,456,4986,26);
+    // int i = 0;
     
-    int size = 5;
-    while (i < 6)
-    {
-        printf("%d \n",((int*)ptr2)[i]);
-        i++;
-    }
-}
+    // int size = 5;
+    // while (i < 6)
+    // {
+    //     printf("%d \n",((int*)ptr2)[i]);
+    //     i++;
+    // }
 
+    int pid;
+    // pid = fork();
+    int n ;
+    if (pid == 0)
+    {
+        n = 1;
+    }
+    else
+    {
+        n = 6;
+    }
+    for (int i = n; i < n + 5; i++)
+    {
+        printf("%d \n",i);
+    }
+    // wait(NULL);
+    return 0;
+}

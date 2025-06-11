@@ -596,7 +596,7 @@ void ft_execute_cmd(t_token *list, char **envp)
 // }
 
 void arahna(t_token *list)
-{
+{ //qtestest
     int i = 0;
     while (list)
     {
