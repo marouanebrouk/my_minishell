@@ -421,7 +421,7 @@ void ft_env(t_token *list, char **envp)
     int i = -1;
     extern char **environ;
     while(environ && environ[++i])
-    printf("%s \n",environ[i]);
+        printf("%s \n",environ[i]);
 }
 
 
@@ -558,30 +558,7 @@ char *ft_get_path_cmd(char *value, char **envp)
 }
 
 
-void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp)
-{
-        int pid = 0;
-        char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
-        int pipefds[2];
-        pipe(pipefds);
-        pid = fork();
-        if (pid == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-        else if (pid == 0)
-        {
-            close(pipefds[0]);
-            dup2(pipefds[1],STDOUT_FILENO);
-            close(pipefds[1]);
-            execve(path_to_exec, pipelist->arguments, envp);
-            printf("command not found : %s \n",pipelist->arguments[0]);
-            exit(1);
-        }
-        else
-            wait(NULL);
-}
+
 
 
 void ft_execute_cmd(t_token *list, char **envp)
@@ -656,7 +633,7 @@ t_pipelist *create_pipe_list(t_token *list)
     }
     return (head);
 }
-void pipelist_arguments_print(t_pipelist *list)
+void print_pipelist_arguments(t_pipelist *list)
 {
     int i = 0;
     while (list)
@@ -673,38 +650,78 @@ void pipelist_arguments_print(t_pipelist *list)
 }
 
 
+
+
+
+
+void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp)
+{
+        int pid = 0;
+        char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+        // int pipefds[2]; this better removed from here
+        // pipe(pipefds);
+        
+        pid = fork();
+        if (pid == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+        else if (pid == 0)
+        {
+            close(pipefds[0]);
+            dup2(pipefds[1],STDOUT_FILENO); // to pipe
+            close(pipefds[1]);
+            // redi
+            execve(path_to_exec, pipelist->arguments, envp);
+            printf("command not found : %s \n",pipelist->arguments[0]);
+            exit(1);
+        }
+        else
+            wait(NULL);
+}
+
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
     // for now it will only execute one cmd and redirect to next one
     while (pipelist && pipelist->next)
     {
+        // int pipefds[2]; <--- this better to be here
+        //pipe(pipefds); <--- this better to be here.
         ft_exec_cmd_and_create_pipe(pipelist,envp);
         pipelist = pipelist->next;
     }
 }
 
 
+
+
+
+
+
+
 void ft_execution(t_token *list, char **envp)
 {
-    // counts the pipes and the commands
+    t_pipelist *pipelist;
+
+    pipelist = NULL;
+    // counts  pipes and commands
     print_count(list);
-    int n_commands = ft_count_commands(list);
-    int npipe = ft_count_pipes(list);
     
-    //print the commands of the token list
+    //print the commands of the t_token list
+    // arahna(list);
+    // get_node_args(list);
+    
+    split_args_from_cmd(list);
     arahna(list);
-    get_node_args(list);
-    // split_args_from_cmd(list);
-    t_pipelist *pipelist = create_pipe_list(list);
+    pipelist = create_pipe_list(list);
     
     arahna2(pipelist);
-    
     split_argsfor_pipe_list(pipelist);
-    pipelist_arguments_print(pipelist);
-
-
-    if (npipe)
-        call_pipe_engine();
+    // print_pipelist_arguments(pipelist);
+    
+    // if (npipe)
+        // call_pipe_engine();
     exit(1);
     if(is_builtin(list->value))
         ft_handle_builtins(list,envp);
@@ -724,7 +741,7 @@ void ft_final_execution(t_token *list,char **evnp)
 
 
 
-// "here i print the node arguments after spliting them"
+// "print the node arguments after spliting them"
 void get_node_args(t_token *list)
 {
     int i = 0;
