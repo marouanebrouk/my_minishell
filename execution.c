@@ -640,42 +640,37 @@ void print_pipelist_arguments(t_pipelist *list)
 //previous attempt
 
 
-// void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
-// {
-//     int pid;
-//     char *path_to_exec;
+void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
+{
+    int pid;
+    char *path_to_exec;
 
-//     pid = fork();
-//     if (pid == 0)
-//     {
-//         path_to_exec = ft_get_path_cmd(pipelist->value, envp);
-//         close(pipefds[0]);
-//         dup2(pipefds[1],STDOUT_FILENO);
-//         close(pipefds[1]);
-//         // ft_next_step(pipefds);
-//         execve(path_to_exec, pipelist->arguments, envp);
-//         printf("command not found : %s \n",pipelist->arguments[0]);
-//         exit(1);
-//     }
-//     else
-//         waitpid(pid, NULL ,0);
-// }
-
-
-
+    pid = fork();
+    if (pid == 0)
+    {
+        path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+        close(pipefds[0]);
+        dup2(pipefds[1],STDOUT_FILENO);
+        close(pipefds[1]);
+        // ft_next_step(pipefds);
+        execve(path_to_exec, pipelist->arguments, envp);
+        printf("command not found : %s \n",pipelist->arguments[0]);
+        exit(1);
+    }
+    else
+        waitpid(pid, NULL ,0);
+}
 void ft_next_step(int *pipefds)
 {
         close(pipefds[1]);
         dup2(pipefds[0],STDIN_FILENO);
         close(pipefds[0]);
 }
-
-
-
+//l g w
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
     int pipefd[2];
-    int prev_read = -1;
+    int flag = -1;
     int pid;
 
     while (pipelist)
@@ -686,10 +681,10 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
         pid = fork();
         if (pid == 0)
         {
-            if (prev_read != -1)
+            if (flag != -1) // flag = pipe1[0]
             {
-                dup2(prev_read, STDIN_FILENO);
-                close(prev_read);
+                dup2(flag, STDIN_FILENO); // STDIN_FILENO --> pipe1[0]
+                close(flag);
             }
             if (pipelist->next)
             {
@@ -705,12 +700,12 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
         }
         else
         {
-            if (prev_read != -1)
-                close(prev_read);
+            if (flag != -1)
+                close(flag);
             if (pipelist->next)
             {
-                close(pipefd[1]);       // parent not writing
-                prev_read = pipefd[0];  // ke the read end for next command
+                close(pipefd[1]); //CLOSED BECAUSE PARENT NOT WRITING IN PIPE
+                flag = pipefd[0]; //flag == read end of pipe1;
             }
             waitpid(pid, NULL, 0);
             pipelist = pipelist->next;
