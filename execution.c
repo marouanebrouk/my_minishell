@@ -637,7 +637,26 @@ void print_pipelist_arguments(t_pipelist *list)
     }
 }
 
+// void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
+// {
+//     int pid;
+//     char *path_to_exec;
 
+//     pid = fork();
+//     if (pid == 0)
+//     {
+//         path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+//         close(pipefds[0]);
+//         dup2(pipefds[1],STDOUT_FILENO);
+//         close(pipefds[1]);
+//         // ft_next_step(pipefds);
+//         execve(path_to_exec, pipelist->arguments, envp);
+//         printf("command not found : %s \n",pipelist->arguments[0]);
+//         exit(1);
+//     }
+//     else
+//         waitpid(pid, NULL ,0);
+// }
 
 
 
@@ -649,42 +668,9 @@ void ft_next_step(int *pipefds)
 }
 
 
-void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
-{
-    int pid;
-    char *path_to_exec;
-
-    pid = fork();
-    if (pid == 0)
-    {
-        path_to_exec = ft_get_path_cmd(pipelist->value, envp);
-        if (!path_to_exec)
-            printf("error\n");
-        close(pipefds[0]);
-        dup2(pipefds[1],STDOUT_FILENO);
-        close(pipefds[1]);
-        // ft_next_step(pipefds);
-        execve(path_to_exec, pipelist->arguments, envp);
-        printf("command not found : %s \n",pipelist->arguments[0]);
-        exit(write(2,"pipe execve failed",18));
-    }
-    else
-        waitpid(pid, NULL ,0);
-}
 
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
-    //ls -l | grep hafasdg | wc -l
-    // while (pipelist)
-    // {
-    //     if(pipelist->next)
-    //     {
-    //         int pipefds[2];
-    //         pipe(pipefds);
-    //         ft_exec_cmd_and_create_pipe(pipelist,envp,pipefds);
-    //     }
-    //     pipelist = pipelist->next;
-    // }
     int pipefd[2];
     int prev_read = -1;
     int pid;
@@ -709,10 +695,10 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
                 close(pipefd[1]);
             }
 
-            char *path = ft_get_path_cmd(pipelist->value, envp);
-            execve(path, pipelist->arguments, envp);
-            perror("execve");
-            exit(1);
+            char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+            execve(path_to_exec, pipelist->arguments, envp);
+            printf("command not found : %s \n",pipelist->arguments[0]);
+            exit(write(2,"pipe execve failed",18));
         }
         else
         {
@@ -742,6 +728,7 @@ void ft_execution(t_token *list, char **envp)
         call_pipe_engine(pipelist, envp);
     }
 }
+
 
 
 
