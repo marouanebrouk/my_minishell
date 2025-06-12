@@ -641,47 +641,93 @@ void print_pipelist_arguments(t_pipelist *list)
 
 
 
-
-void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp)
+void ft_next_step(int *pipefds)
 {
-        int pid = 0;
-        char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
-        // int pipefds[2]; this better removed from here
-        // pipe(pipefds);
-        
-        pid = fork();
-        if (pid == -1)
-        {
-            perror("fork");
-            exit(1);
-        }
-        else if (pid == 0)
-        {
-            // close(pipefds[0]);
-            // dup2(pipefds[1],STDOUT_FILENO); // to pipe
-            // close(pipefds[1]);
-            // redi
-            execve(path_to_exec, pipelist->arguments, envp);
-            printf("command not found : %s \n",pipelist->arguments[0]);
-            exit(1);
-        }
-        else
-            wait(NULL);
+        close(pipefds[1]);
+        dup2(pipefds[0],STDIN_FILENO);
+        close(pipefds[0]);
+}
+
+
+void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
+{
+    int pid;
+    char *path_to_exec;
+
+    pid = fork();
+    if (pid == 0)
+    {
+        path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+        if (!path_to_exec)
+            printf("error\n");
+        close(pipefds[0]);
+        dup2(pipefds[1],STDOUT_FILENO);
+        close(pipefds[1]);
+        // ft_next_step(pipefds);
+        execve(path_to_exec, pipelist->arguments, envp);
+        printf("command not found : %s \n",pipelist->arguments[0]);
+        exit(write(2,"pipe execve failed",18));
+    }
+    else
+        waitpid(pid, NULL ,0);
 }
 
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
-    //ls -l | grep hafasdg | wc -l 
-    while (pipelist && pipelist->next->value)
+    //ls -l | grep hafasdg | wc -l
+    // while (pipelist)
+    // {
+    //     if(pipelist->next)
+    //     {
+    //         int pipefds[2];
+    //         pipe(pipefds);
+    //         ft_exec_cmd_and_create_pipe(pipelist,envp,pipefds);
+    //     }
+    //     pipelist = pipelist->next;
+    // }
+    int pipefd[2];
+    int prev_read = -1;
+    int pid;
+
+    while (pipelist)
     {
-        int pipefds[2];
-        pipe(pipefds);
-        ft_exec_cmd_and_create_pipe(pipelist,envp);
-        pipelist = pipelist->next;
+        if (pipelist->next)
+            pipe(pipefd);
+
+        pid = fork();
+        if (pid == 0)
+        {
+            if (prev_read != -1)
+            {
+                dup2(prev_read, STDIN_FILENO);
+                close(prev_read);
+            }
+            if (pipelist->next)
+            {
+                close(pipefd[0]);
+                dup2(pipefd[1], STDOUT_FILENO);
+                close(pipefd[1]);
+            }
+
+            char *path = ft_get_path_cmd(pipelist->value, envp);
+            execve(path, pipelist->arguments, envp);
+            perror("execve");
+            exit(1);
+        }
+        else
+        {
+            if (prev_read != -1)
+                close(prev_read);
+            if (pipelist->next)
+            {
+                close(pipefd[1]);       // parent not writing
+                prev_read = pipefd[0];  // k the read end for next command
+            }
+            waitpid(pid, NULL, 0);
+            pipelist = pipelist->next;
+        }
     }
 }
-
-// ls -l | wc -l | grep a.out
 
 
 void ft_execution(t_token *list, char **envp)
@@ -691,11 +737,8 @@ void ft_execution(t_token *list, char **envp)
     pipelist = NULL;
     if (ft_count_pipes(list) > 0)
     {
-        // print_count(list);
         pipelist = create_pipe_list(list);
-        // arahna2(pipelist);
         split_argsfor_pipe_list(pipelist);
-        // print_pipelist_arguments(pipelist);
         call_pipe_engine(pipelist, envp);
     }
 }
