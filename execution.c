@@ -637,7 +637,7 @@ void print_pipelist_arguments(t_pipelist *list)
     }
 }
 
-//previous attempt
+//previous not complete attempt
 
 
 void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
@@ -666,11 +666,13 @@ void ft_next_step(int *pipefds)
         dup2(pipefds[0],STDIN_FILENO);
         close(pipefds[0]);
 }
-//l g w
+//ls -l | grep hello | wc -l
+
+//setting
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
     int pipefd[2];
-    int flag = -1;
+    int read_end = -1;
     int pid;
 
     while (pipelist)
@@ -681,18 +683,18 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
         pid = fork();
         if (pid == 0)
         {
-            if (flag != -1) // flag = pipe1[0]
+            if (read_end != -1) // read_end = pipe1[0]
             {
-                dup2(flag, STDIN_FILENO); // STDIN_FILENO --> pipe1[0]
-                close(flag);
+                dup2(read_end, STDIN_FILENO); // stdout points to --> pipe1[0]
+                close(read_end);
             }
-            if (pipelist->next)
+            if (pipelist->next) //dup for the next command in list
             {
                 close(pipefd[0]);
                 dup2(pipefd[1], STDOUT_FILENO);
                 close(pipefd[1]);
             }
-
+            
             char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
             execve(path_to_exec, pipelist->arguments, envp);
             printf("command not found : %s \n",pipelist->arguments[0]);
@@ -700,12 +702,12 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
         }
         else
         {
-            if (flag != -1)
-                close(flag);
+            if (read_end != -1) //closed pipe[0] in parent
+                close(read_end);
             if (pipelist->next)
             {
                 close(pipefd[1]); //CLOSED BECAUSE PARENT NOT WRITING IN PIPE
-                flag = pipefd[0]; //flag == read end of pipe1;
+                read_end = pipefd[0]; //read_end == read end of pipe1;
             }
             waitpid(pid, NULL, 0);
             pipelist = pipelist->next;
