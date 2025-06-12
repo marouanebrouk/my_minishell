@@ -563,8 +563,8 @@ char *ft_get_path_cmd(char *value, char **envp)
 
 void ft_execute_cmd(t_token *list, char **envp)
 {
+        char *path_to_exec;
         int pid = 0;
-        char *path_to_exec = ft_get_path_cmd(list->value, envp);
         pid = fork();
         if (pid == -1)
         {
@@ -572,7 +572,12 @@ void ft_execute_cmd(t_token *list, char **envp)
             exit(1);
         }
         else if (pid == 0)
-        {  
+        {
+            path_to_exec = ft_get_path_cmd(list->value, envp);
+            if (!path_to_exec)
+            {
+                printf("command not found : %s \n",list->argument[0]);
+            }
             execve(path_to_exec, list->argument, envp);
             printf("command not found : %s \n",list->argument[0]);
             exit(1);
@@ -640,6 +645,16 @@ void print_pipelist_arguments(t_pipelist *list)
 //previous not complete attempt
 
 
+void ft_getpath_andexec(t_pipelist *pipelist, char **envp)
+{
+    char * path_to_exec;
+
+    path_to_exec = ft_get_path_cmd(pipelist->value, envp);
+    execve(path_to_exec, pipelist->arguments, envp);
+    printf("command not found : %s \n",pipelist->arguments[0]);
+    exit(write(2,"pipe execve failed",18));
+}
+
 void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
 {
     int pid;
@@ -673,6 +688,7 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
     int pipefd[2];
     int read_end = -1;
+    char *path_to_exec;
     int pid;
 
     while (pipelist)
@@ -694,11 +710,7 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
                 dup2(pipefd[1], STDOUT_FILENO);
                 close(pipefd[1]);
             }
-            
-            char *path_to_exec = ft_get_path_cmd(pipelist->value, envp);
-            execve(path_to_exec, pipelist->arguments, envp);
-            printf("command not found : %s \n",pipelist->arguments[0]);
-            exit(write(2,"pipe execve failed",18));
+            ft_getpath_andexec(pipelist ,envp);
         }
         else
         {
