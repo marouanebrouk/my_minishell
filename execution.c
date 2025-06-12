@@ -637,6 +637,9 @@ void print_pipelist_arguments(t_pipelist *list)
     }
 }
 
+//previous attempt
+
+
 // void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
 // {
 //     int pid;
@@ -707,7 +710,7 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
             if (pipelist->next)
             {
                 close(pipefd[1]);       // parent not writing
-                prev_read = pipefd[0];  // k the read end for next command
+                prev_read = pipefd[0];  // ke the read end for next command
             }
             waitpid(pid, NULL, 0);
             pipelist = pipelist->next;
@@ -803,11 +806,6 @@ int main(int ac, char **av, char **envp)
         if (ft_strlen(cmd))
             add_history(cmd);
         tokens = tokenize(cmd);
-        // if (tokens)
-        // {
-        //      arahna(tokens);
-            // ft_print_token(tokens);
-        // }
         if (tokens != NULL)
             ft_final_execution(tokens,envp);
     }

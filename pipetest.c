@@ -33,7 +33,7 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
             exit(1);
         }
 
-        // parent continues here
+        // parent starts here somehow
         if (prev_read != -1)
             close(prev_read);
 
