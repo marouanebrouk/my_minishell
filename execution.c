@@ -575,9 +575,7 @@ void ft_execute_cmd(t_token *list, char **envp)
         {
             path_to_exec = ft_get_path_cmd(list->value, envp);
             if (!path_to_exec)
-            {
                 printf("command not found : %s \n",list->argument[0]);
-            }
             execve(path_to_exec, list->argument, envp);
             printf("command not found : %s \n",list->argument[0]);
             exit(1);
@@ -589,7 +587,7 @@ void ft_execute_cmd(t_token *list, char **envp)
 
 
 void arahna(t_token *list)
-{ //qtestest
+{
     int i = 0;
     while (list)
     {
@@ -643,7 +641,6 @@ void print_pipelist_arguments(t_pipelist *list)
 }
 
 //previous not complete attempt
-
 
 void ft_getpath_andexec(t_pipelist *pipelist, char **envp)
 {
@@ -732,13 +729,9 @@ void ft_execution(t_token *list, char **envp)
 {
     t_pipelist *pipelist;
 
-    pipelist = NULL;
-    if (ft_count_pipes(list) > 0)
-    {
-        pipelist = create_pipe_list(list);
-        split_argsfor_pipe_list(pipelist);
-        call_pipe_engine(pipelist, envp);
-    }
+    pipelist = create_pipe_list(list);
+    split_argsfor_pipe_list(pipelist);
+    call_pipe_engine(pipelist, envp);
 }
 
 
