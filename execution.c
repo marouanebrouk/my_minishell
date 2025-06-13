@@ -678,7 +678,7 @@ void ft_parent(t_pipelist *pipelist, int *read_end, int *pipefd, int pid)
         close(pipefd[1]);
         *read_end = pipefd[0];
     }
-    waitpid(pid, NULL, 0);
+    // waitpid(pid, NULL, 0);
     // wait(NULL);
 }
 
@@ -735,6 +735,8 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
             pipelist = pipelist->next;
         }
     }
+    while (pid)
+        wait(NULL);
 }
 
 
@@ -768,10 +770,7 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
                 close(pipefd[0]);
                 close(pipefd[1]);
             }
-
             execve(ft_get_path_cmd(pipelist->value, envp), pipelist->arguments, envp);
-            perror("execve failed");
-            exit(1);
         }
 
         // parent continues here
