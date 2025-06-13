@@ -645,31 +645,8 @@ void ft_getpath_andexec(t_pipelist *pipelist, char **envp)
 }
 
 //previous not complete attempt
-// void ft_exec_cmd_and_create_pipe(t_pipelist *pipelist, char **envp, int *pipefds)
-// {
-//     int pid;
-//     char *path_to_exec;
 
-//     pid = fork();
-//     if (pid == 0)
-//     {
-//         path_to_exec = ft_get_path_cmd(pipelist->value, envp);
-//         close(pipefds[0]);
-//         dup2(pipefds[1],STDOUT_FILENO);
-//         close(pipefds[1]);
-//         // ft_next_step(pipefds);
-//         execve(path_to_exec, pipelist->arguments, envp);
-//         printf("command not found : %s \n",pipelist->arguments[0]);
-//         exit(1);
-//     }
-//     else
-//         waitpid(pid, NULL ,0);
-// }
-
-
-//ls | grep hello
-
-void ft_parent(t_pipelist *pipelist, int *read_end, int *pipefd, int pid)
+void ft_parent(t_pipelist *pipelist, int *read_end, int *pipefd)
 {
     if (*read_end != -1)
         close(*read_end);
@@ -716,84 +693,29 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
     int pipefd[2];
     int read_end = -1;
     char *path_to_exec;
-    int pid;
     int n_cmd = ftn_commands(pipelist);
-
+    int *pid = malloc(sizeof(int) * n_cmd);
+    int i = 0;
     while (pipelist)
     {
         if (pipelist->next)
             pipe(pipefd);
 
-        pid = fork();
-        if (pid == 0)
+        pid[i] = fork();
+        if (pid[i] == 0)
         {
             ft_child(pipelist,&read_end,pipefd,envp);
         }
-        if(pid != 0)
+        if(pid[i] != 0)
         {
-            ft_parent(pipelist,&read_end,pipefd,pid);
+            ft_parent(pipelist,&read_end,pipefd);
             pipelist = pipelist->next;
+            i++;
         }
     }
-    while (pid)
+    while(--i >= 0)
         wait(NULL);
 }
-
-
-/*
-#define MAX_CMDS 100 
-
-void call_pipe_engine(t_pipelist *pipelist, char **envp)
-{
-    int pipefd[2];
-    int prev_read = -1;
-    int i = 0;
-    pid_t pids[MAX_CMDS];
-
-    while (pipelist)
-    {
-        if (pipelist->next)
-            pipe(pipefd);
-
-        pids[i] = fork();
-        if (pids[i] == 0)
-        {
-            if (prev_read != -1)
-            {
-                dup2(prev_read, STDIN_FILENO);
-                close(prev_read);
-            }
-
-            if (pipelist->next)
-            {
-                dup2(pipefd[1], STDOUT_FILENO);
-                close(pipefd[0]);
-                close(pipefd[1]);
-            }
-            execve(ft_get_path_cmd(pipelist->value, envp), pipelist->arguments, envp);
-        }
-
-        // parent continues here
-        if (prev_read != -1)
-            close(prev_read);
-
-        if (pipelist->next)
-        {
-            close(pipefd[1]);
-            prev_read = pipefd[0];
-        }
-
-        pipelist = pipelist->next;
-        i++;
-    }
-
-    // wait for all children AFTER loop
-    while (--i >= 0)
-        waitpid(pids[i], NULL, 0);
-}
-
-
-*/
 
 
 
