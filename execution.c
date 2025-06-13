@@ -698,7 +698,18 @@ void ft_child(t_pipelist *pipelist, int *read_end, int *pipefd, char **envp)
     ft_getpath_andexec(pipelist ,envp);
 }
 
+int ftn_commands(t_pipelist *pipelist)
+{
+    int count;
 
+    count = 0;
+    while(pipelist)
+    {
+        count++;
+        pipelist = pipelist->next;
+    }
+    return (count);
+}
 
 void call_pipe_engine(t_pipelist *pipelist, char **envp)
 {
@@ -706,6 +717,7 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
     int read_end = -1;
     char *path_to_exec;
     int pid;
+    int n_cmd = ftn_commands(pipelist);
 
     while (pipelist)
     {
@@ -724,6 +736,66 @@ void call_pipe_engine(t_pipelist *pipelist, char **envp)
         }
     }
 }
+
+
+/*
+#define MAX_CMDS 100 
+
+void call_pipe_engine(t_pipelist *pipelist, char **envp)
+{
+    int pipefd[2];
+    int prev_read = -1;
+    int i = 0;
+    pid_t pids[MAX_CMDS];
+
+    while (pipelist)
+    {
+        if (pipelist->next)
+            pipe(pipefd);
+
+        pids[i] = fork();
+        if (pids[i] == 0)
+        {
+            if (prev_read != -1)
+            {
+                dup2(prev_read, STDIN_FILENO);
+                close(prev_read);
+            }
+
+            if (pipelist->next)
+            {
+                dup2(pipefd[1], STDOUT_FILENO);
+                close(pipefd[0]);
+                close(pipefd[1]);
+            }
+
+            execve(ft_get_path_cmd(pipelist->value, envp), pipelist->arguments, envp);
+            perror("execve failed");
+            exit(1);
+        }
+
+        // parent continues here
+        if (prev_read != -1)
+            close(prev_read);
+
+        if (pipelist->next)
+        {
+            close(pipefd[1]);
+            prev_read = pipefd[0];
+        }
+
+        pipelist = pipelist->next;
+        i++;
+    }
+
+    // wait for all children AFTER loop
+    while (--i >= 0)
+        waitpid(pids[i], NULL, 0);
+}
+
+
+*/
+
 
 
 void ft_execution(t_token *list, char **envp)
